@@ -5,6 +5,10 @@ VisualStudioVersion = 17.13.35818.85 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketMaster", "TicketMaster\TicketMaster.csproj", "{23FCC8AC-3DB4-4A59-91B5-02AAAD6CDEDD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketMaster.DataContext", "TicketMaster.DataContext\TicketMaster.DataContext.csproj", "{90B951EE-E44C-407A-B84C-FC95C58D004D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketMaster.Services", "TicketMaster.Services\TicketMaster.Services.csproj", "{DA114B40-B907-46D6-B24D-68E4511DE635}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{23FCC8AC-3DB4-4A59-91B5-02AAAD6CDEDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23FCC8AC-3DB4-4A59-91B5-02AAAD6CDEDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23FCC8AC-3DB4-4A59-91B5-02AAAD6CDEDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90B951EE-E44C-407A-B84C-FC95C58D004D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90B951EE-E44C-407A-B84C-FC95C58D004D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90B951EE-E44C-407A-B84C-FC95C58D004D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90B951EE-E44C-407A-B84C-FC95C58D004D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA114B40-B907-46D6-B24D-68E4511DE635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA114B40-B907-46D6-B24D-68E4511DE635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA114B40-B907-46D6-B24D-68E4511DE635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA114B40-B907-46D6-B24D-68E4511DE635}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
