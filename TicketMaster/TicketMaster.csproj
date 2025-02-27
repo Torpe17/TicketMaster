@@ -20,4 +20,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TicketMaster.Services\TicketMaster.Services.csproj" />
+  </ItemGroup>
+
 </Project>
