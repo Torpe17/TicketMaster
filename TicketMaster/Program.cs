@@ -17,8 +17,11 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer("Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true");
+                options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
             });
+            //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
+            //PM> Add-Migration Init -Project TicketMaster.DataContext //succeeded
+            //PM> Update-Database //network error
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
