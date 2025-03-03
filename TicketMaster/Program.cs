@@ -24,6 +24,8 @@ namespace TicketMaster
             });
             //appsettings.json: "ConnectionStrings": {"TicketMasterDatabase": "YourConnectionString"}
             //PM> Scaffold-DbContext 'Name=ConnectionStrings:TicketMasterDatabase' Microsoft.EntityFrameworkCore.SqlServer
+            //CLI> dotnet ef dbcontext scaffold Name=ConnectionStrings:YourDatabaseAlias Microsoft.EntityFrameworkCore.SqlServer
+
             //PM> Add-Migration Init -Project TicketMaster.DataContext
             //PM> Update-Database
 
