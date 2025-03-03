@@ -17,11 +17,15 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
+                var conString = builder.Configuration.GetConnectionString("TicketMasterDatabase") ??
+                     throw new InvalidOperationException("Connection string 'TicketMasterDatabase'" +
+                    " not found.");
+                options.UseSqlServer(conString);
             });
-            //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
-            //PM> Add-Migration Init -Project TicketMaster.DataContext //succeeded
-            //PM> Update-Database //network error
+            //appsettings.json: "ConnectionStrings": {"TicketMasterDatabase": "YourConnectionString"}
+            //PM> Scaffold-DbContext 'Name=ConnectionStrings:TicketMasterDatabase' Microsoft.EntityFrameworkCore.SqlServer
+            //PM> Add-Migration Init -Project TicketMaster.DataContext
+            //PM> Update-Database
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
