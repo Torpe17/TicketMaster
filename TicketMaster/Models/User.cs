@@ -14,6 +14,6 @@
         public string Email { get; set; }
         public Rank Rank { get; set; }
         public Address Address { get; set; }
-        public Purchase Pruchases { get; set; }
+        public List<Purchase> Pruchases { get; set; }
     }
 }
