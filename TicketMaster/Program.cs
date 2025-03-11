@@ -17,7 +17,8 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
+                //Márk
+                options.UseSqlServer("Server=(localdb)\\TicketMaster;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
             });
             //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
             //PM> Add-Migration Init -Project TicketMaster.DataContext //succeeded
