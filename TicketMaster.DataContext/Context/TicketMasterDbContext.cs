@@ -1,0 +1,17 @@
+﻿using Microsoft.EntityFrameworkCore;
+using TicketMaster.Models;
+namespace TicketMaster
+{
+    public class TicketMasterDbContext : DbContext
+    {
+        public TicketMasterDbContext(DbContextOptions options) : base(options)
+        {
+        }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Film> Films { get; set; }
+        public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Screening> Screenings { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<User> Users { get; set; }
+    }
+}

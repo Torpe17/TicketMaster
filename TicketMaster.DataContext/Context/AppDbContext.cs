@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TicketMaster.DataContext.Entities;
+using TicketMaster.DataContext.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

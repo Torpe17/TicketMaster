@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TicketMaster.DataContext.Entities;
+using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.Context;
 
 namespace TicketMaster.Services
@@ -14,9 +14,9 @@ namespace TicketMaster.Services
     }
     class FilmService : IFilmService
     {
-        private readonly AppDbContext _context;
+        private readonly TicketMasterDbContext _context;
 
-        public FilmService(AppDbContext context)
+        public FilmService(TicketMasterDbContext context)
         {
             _context = context;
         }

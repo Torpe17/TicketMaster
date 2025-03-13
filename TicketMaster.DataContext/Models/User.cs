@@ -1,4 +1,4 @@
-﻿namespace TicketMaster.Models
+﻿namespace TicketMaster.DataContext.Models
 {
     public enum Rank
     {

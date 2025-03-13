@@ -1,6 +1,4 @@
-﻿using TicketMaster.DataContext.Entities;
-
-namespace TicketMaster.Models
+﻿namespace TicketMaster.DataContext.Models
 {
     public class Screening
     {
