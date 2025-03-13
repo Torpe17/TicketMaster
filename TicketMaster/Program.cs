@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Data;
 using TicketMaster.DataContext.Context;
 
 namespace TicketMaster
@@ -14,11 +15,12 @@ namespace TicketMaster
             // Add services to the container.
 
             builder.Services.AddControllers();
-
-            builder.Services.AddDbContext<AppDbContext>(options =>
+            var conString = builder.Configuration.GetConnectionString("Mark") ??
+                            throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
+            builder.Services.AddDbContext<TicketMasterDbContext>(options =>
             {
-                //Márk
-                options.UseSqlServer("Server=(localdb)\\TicketMaster;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
+               
+                options.UseSqlServer(conString);
             });
             //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
             //PM> Add-Migration Init -Project TicketMaster.DataContext //succeeded

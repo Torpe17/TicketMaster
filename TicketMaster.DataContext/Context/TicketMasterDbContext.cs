@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TicketMaster.Models;
+using TicketMaster.DataContext.Models;
 namespace TicketMaster
 {
     public class TicketMasterDbContext : DbContext
     {
-        public TicketMasterDbContext(DbContextOptions options) : base(options)
+        public TicketMasterDbContext(DbContextOptions<TicketMasterDbContext> options) : base(options)
         {
         }
         public DbSet<Address> Addresses { get; set; }
