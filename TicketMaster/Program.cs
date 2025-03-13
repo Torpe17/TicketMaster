@@ -74,10 +74,20 @@ namespace TicketMaster
                     Console.WriteLine($"- {film.Title}");
                 }
 
+                // Random r = new Random();
+                //string title = r.Next(1,1000).ToString();
+
+                //ha nem fix értéket adok neki akkor vamaiért működik
+                //mi
+                //a
+                //fasz
+                Console.WriteLine("title:");
+                string title =Console.ReadLine();
+                
                 //megölök valakit geci
                 Film _film = new Film
                 {
-                    Title = "mukodj pls DDDDD",
+                    Title = title,
                     Description = "muk odj",
                     Director = "Drip Elek",
                     Genre = "vicc elek",
