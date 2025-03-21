@@ -12,17 +12,17 @@ namespace TicketMaster.Services
     public interface IFilmService
     {
         List<Film> List();
-        Task AddAsync<T>(T entity) where T : class;
-        Task<T> GetByIdAsync<T>(int id) where T : class;
-        Task<List<T>> GetAllAsync<T>() where T : class;
-        Task UpdateAsync<T>(T entity) where T : class;
-        Task DeleteAsync<T>(T entity) where T : class;
+        //Task AddAsync<T>(T entity) where T : class;
+        //Task<T> GetByIdAsync<T>(int id) where T : class;
+        //Task<List<T>> GetAllAsync<T>() where T : class;
+        //Task UpdateAsync<T>(T entity) where T : class;
+        //Task DeleteAsync<T>(T entity) where T : class;
     }
     public class FilmService : IFilmService
     {
-        private readonly TicketMasterDbContext _context;
+        private readonly AppDbContext _context;
 
-        public FilmService(TicketMasterDbContext context)
+        public FilmService(AppDbContext context)
         {
             _context = context;
         }
@@ -32,33 +32,33 @@ namespace TicketMaster.Services
             return _context.Films.ToList();
         }
 
-        public async Task AddAsync<T>(T entity) where T : class
-        {
-            _context.Set<T>().Add(entity);
-            await _context.SaveChangesAsync();
-        }
+        //public async Task AddAsync<T>(T entity) where T : class
+        //{
+        //    _context.Set<T>().Add(entity);
+        //    await _context.SaveChangesAsync();
+        //}
 
-        public async Task<T> GetByIdAsync<T>(int id) where T : class
-        {
-            return await _context.Set<T>().FindAsync(id);
-        }
+        //public async Task<T> GetByIdAsync<T>(int id) where T : class
+        //{
+        //    return await _context.Set<T>().FindAsync(id);
+        //}
 
-        public async Task<List<T>> GetAllAsync<T>() where T : class
-        {
-            return await _context.Set<T>().ToListAsync();
-        }
+        //public async Task<List<T>> GetAllAsync<T>() where T : class
+        //{
+        //    return await _context.Set<T>().ToListAsync();
+        //}
 
-        public async Task UpdateAsync<T>(T entity) where T : class
-        {
-            _context.Set<T>().Update(entity);
-            await _context.SaveChangesAsync();
-        }
+        //public async Task UpdateAsync<T>(T entity) where T : class
+        //{
+        //    _context.Set<T>().Update(entity);
+        //    await _context.SaveChangesAsync();
+        //}
 
-        public async Task DeleteAsync<T>(T entity) where T : class
-        {
-            _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync();
-        }
+        //public async Task DeleteAsync<T>(T entity) where T : class
+        //{
+        //    _context.Set<T>().Remove(entity);
+        //    await _context.SaveChangesAsync();
+        //}
         
     }
 }

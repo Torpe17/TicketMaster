@@ -23,8 +23,8 @@ namespace TicketMaster
                 options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
             });
             //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
-            //PM> Add-Migration Init -Project TicketMaster.DataContext -Context TicketMasterDbContext //succeeded
-            //PM> Update-Database //network error
+            //PM> Add-Migration Init -Project TicketMaster.DataContext
+            //PM> Update-Database //network error -> rossz connection-string
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
@@ -55,56 +55,6 @@ namespace TicketMaster
             app.UseAuthorization();
 
             app.MapControllers();
-
-            //crud test.... valaki oldja meg pls nekem mindig beraganak az adatok és csak clean solution->build solution után adja hozá a módosítottat... -Márk
-            //A FilmService.cs ben vannak a crud műveletek, elvileg generikusak, teszt alapján elvileg mindenhez lehet velük hozzáadni... csak ugye ↑↑↑↑↑↑↑
-            using (var scope = app.Services.CreateScope())
-            {
-                //dbcontext szedés
-                var filmService = scope.ServiceProvider.GetRequiredService<IFilmService>();
-
-                List<Film> existingFilms = await filmService.GetAllAsync<Film>();
-                Console.WriteLine("Existing films in the database:");
-                foreach (Film film in existingFilms)
-                {
-                    Console.WriteLine($"- {film.Title}");
-                }
-
-                // Random r = new Random();
-                //string title = r.Next(1,1000).ToString();
-
-                //ha nem fix értéket adok neki akkor vamaiért működik
-                //mi
-                //a
-                //fasz
-                Console.WriteLine("title:");
-                string title =Console.ReadLine();
-                
-                //megölök valakit geci
-                Film _film = new Film
-                {
-                    Title = title,
-                    Description = "muk odj",
-                    Director = "Drip Elek",
-                    Genre = "vicc elek",
-                    Length = 170
-                };
-
-                Console.WriteLine($"Attempting to add film: {_film.Title}");
-
-                await filmService.AddAsync(_film);
-
-                existingFilms = await filmService.GetAllAsync<Film>();
-                Console.WriteLine("Updated films in the database:");
-                foreach (var film in existingFilms)
-                {
-                    Console.WriteLine($"- {film.Title}");
-                }
-                //foreach (var film in existingFilms)
-                //{
-                //    await filmService.DeleteAsync(film);
-                //}
-            }
 
             app.Run();
             
