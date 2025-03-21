@@ -21,9 +21,6 @@ namespace TicketMaster
                 options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
                 //launchsettings.json -> environmentVariables -> ConnectionStrings:UserDatabase
             });
-            //appsettings.json verzióhoz
-            //PM> Scaffold-DbContext 'Name=ConnectionStrings:TicketMasterDatabase' Microsoft.EntityFrameworkCore.SqlServer
-            //CLI> dotnet ef dbcontext scaffold Name=ConnectionStrings:YourDatabaseAlias Microsoft.EntityFrameworkCore.SqlServer
 
             //PM> Add-Migration Init -Project TicketMaster.DataContext
             //PM> Update-Database
