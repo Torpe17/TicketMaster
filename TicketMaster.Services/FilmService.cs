@@ -23,7 +23,7 @@ namespace TicketMaster.Services
 
         public List<Film> List()
         {
-            return _context.Films.ToList();
+            return _context.Films.ToList(); 
         }
     }
 }

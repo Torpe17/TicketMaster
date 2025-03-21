@@ -17,12 +17,9 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                var conString = builder.Configuration.GetConnectionString("TicketMasterDatabase") ??
-                     throw new InvalidOperationException("Connection string 'TicketMasterDatabase'" +
-                    " not found.");
-                options.UseSqlServer(conString);
+                options.UseSqlServer("@ConnectionStrings:UserDatabase");
+                //launchsettings.json -> environmentVariables -> ConnectionStrings:UserDatabase
             });
-            //appsettings.json: "ConnectionStrings": {"TicketMasterDatabase": "YourConnectionString"}
             //PM> Scaffold-DbContext 'Name=ConnectionStrings:TicketMasterDatabase' Microsoft.EntityFrameworkCore.SqlServer
             //CLI> dotnet ef dbcontext scaffold Name=ConnectionStrings:YourDatabaseAlias Microsoft.EntityFrameworkCore.SqlServer
 

@@ -14,7 +14,7 @@ namespace TicketMaster.DataContext.Context
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
         { }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer("Name=ConnectionStrings:TicketMasterDatabase");
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //    => optionsBuilder.UseSqlServer("Name=ConnectionStrings:TicketMasterDatabase");
     }
 }
