@@ -10,8 +10,7 @@ namespace TicketMaster
 {
     public class Program
     {
-        //async lett a main, ha nem kell akkor "async Task" -> void
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +19,8 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
+                options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
+                //launchsettings.json -> environmentVariables -> ConnectionStrings:UserDatabase
             });
             //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
             //PM> Add-Migration Init -Project TicketMaster.DataContext
@@ -57,7 +57,6 @@ namespace TicketMaster
             app.MapControllers();
 
             app.Run();
-            
         }
     }
 }
