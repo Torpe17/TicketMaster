@@ -2,7 +2,7 @@
 {
     public enum Rank
     {
-        Not_registered,
+        NotRegistered,
         Registered,
         Cashier,
         Admin
@@ -14,6 +14,7 @@
         public string Email { get; set; }
         public Rank Rank { get; set; }
         public Address Address { get; set; }
+        public DateOnly BirthDate { get; set; }
         public List<Purchase> Purchases { get; set; }
     }
 }

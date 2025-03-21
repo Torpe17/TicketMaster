@@ -8,6 +8,7 @@
         public string Genre { get; set; }
         public int Length { get; set; }
         public string Description { get; set; }
+        public int? AgeRating { get; set; }
         public List<Screening> Screenings { get; set; }
     }
 }
