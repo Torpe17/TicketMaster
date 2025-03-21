@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using TicketMaster.DataContext.Context;
+using TicketMaster.Services;
 
 namespace TicketMaster
 {
@@ -17,9 +18,10 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer("@ConnectionStrings:UserDatabase");
+                options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
                 //launchsettings.json -> environmentVariables -> ConnectionStrings:UserDatabase
             });
+            //appsettings.json verzióhoz
             //PM> Scaffold-DbContext 'Name=ConnectionStrings:TicketMasterDatabase' Microsoft.EntityFrameworkCore.SqlServer
             //CLI> dotnet ef dbcontext scaffold Name=ConnectionStrings:YourDatabaseAlias Microsoft.EntityFrameworkCore.SqlServer
 
@@ -28,6 +30,8 @@ namespace TicketMaster
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            builder.Services.AddScoped<IFilmService, FilmService>();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

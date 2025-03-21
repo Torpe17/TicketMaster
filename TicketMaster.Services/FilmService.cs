@@ -12,7 +12,7 @@ namespace TicketMaster.Services
     {
         List<Film> List();
     }
-    class FilmService : IFilmService
+    public class FilmService : IFilmService
     {
         private readonly AppDbContext _context;
 
