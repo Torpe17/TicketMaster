@@ -16,16 +16,12 @@ namespace TicketMaster
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
-            var conString = builder.Configuration.GetConnectionString("Mark") ??
-                            throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
-            builder.Services.AddDbContext<TicketMasterDbContext>(options =>
-            {
-               
-                options.UseSqlServer(conString);
-            });
 
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;");
+            });
             //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
             //PM> Add-Migration Init -Project TicketMaster.DataContext -Context TicketMasterDbContext //succeeded
             //PM> Update-Database //network error
