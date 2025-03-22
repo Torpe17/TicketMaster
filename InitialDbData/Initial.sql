@@ -1,20 +1,15 @@
-﻿/*
-DROP TABLE IF EXISTS Ticket;
-DROP TABLE IF EXISTS Screening;
-DROP TABLE IF EXISTS Purchase;
-DROP TABLE IF EXISTS [Address];
-DROP TABLE IF EXISTS [User];
-DROP TABLE IF EXISTS Room;
-DROP TABLE IF EXISTS Films;
+﻿
+
+/*
+DELETE FROM Tickets;
+DELETE FROM Purchases;
+DELETE FROM [Addresses];
+DELETE FROM Screenings;
+DELETE FROM [Users];
+DELETE FROM Films;
+DELETE FROM Rooms;
 */
 
-DELETE FROM Ticket;
-DELETE FROM Purchase;
-DELETE FROM [Address];
-DELETE FROM Screening;
-DELETE FROM [User];
-DELETE FROM Films;
-DELETE FROM Room;
 
 INSERT INTO Films (Title, Director, Genre, Length, Description, AgeRating) VALUES
 ('Dragon Ball Super: Broly', 'Tatsuya Nagamine', 'Animation', 100, 'The Saiyans are faced with a new threat in the form of Broly, a powerful Saiyan warrior.', 12),
@@ -231,7 +226,7 @@ INSERT INTO Films (Title, Director, Genre, Length, Description, AgeRating) VALUE
 ('Bottle Rocket', 'Wes Anderson', 'Comedy', 91, 'Three friends plan a series of heists, but things don''t go as planned.', 12),
 ('The French Dispatch', 'Wes Anderson', 'Comedy', 108, 'A collection of stories from the final issue of an American magazine in France.', 12);
 
-INSERT INTO Room (Name, MaxSeatRow, MaxSeatColumn) VALUES
+INSERT INTO Rooms (Name, MaxSeatRow, MaxSeatColumn) VALUES
 ('Room 1', 10, 15),
 ('Room 2', 12, 18),
 ('Room 3', 8, 12),
@@ -243,7 +238,7 @@ INSERT INTO Room (Name, MaxSeatRow, MaxSeatColumn) VALUES
 ('Room 9', 10, 20),
 ('Room 10', 15, 20);
 
-INSERT INTO Screening (FilmId, RoomId, Date) VALUES
+INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (1, 1, '2025-06-15 14:00:00'),
 (1, 3, '2025-07-22 18:30:00'),
 (1, 5, '2025-08-10 12:00:00'),
@@ -559,7 +554,7 @@ INSERT INTO Screening (FilmId, RoomId, Date) VALUES
 (70, 6, '2025-08-24 17:30:00'),
 (70, 8, '2025-06-30 10:00:00');
 
-INSERT INTO [User] (Name, Email, Rank, BirthDate) VALUES
+INSERT INTO [Users] (Name, Email, Rank, BirthDate) VALUES
 ('Kovács Ádám', 'kovacs.adam@example.com', 1, '1990-01-01'),
 ('Nagy Eszter', 'nagy.eszter@example.com', 1, '1991-02-02'),
 ('Tóth Balázs', 'toth.balazs@example.com', 1, '1992-03-03'),
@@ -594,7 +589,7 @@ INSERT INTO [User] (Name, Email, Rank, BirthDate) VALUES
 ('Ján Novák', 'jan.novak@example.com', 1, '1991-02-02'),
 ('Maria Popescu', 'maria.popescu@example.com', 1, '1992-03-03');
 
-INSERT INTO Address (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
+INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
 ('Hungary', 'Budapest', 1011, 'Budapest', 'Kossuth Lajos utca', NULL, 10, 1),
 ('Hungary', 'Budapest', 1012, 'Budapest', 'Széchenyi utca', 2, 5, 2),
 ('Hungary', 'Budapest', 1013, 'Budapest', 'Andrássy út', NULL, 20, 3),
@@ -629,7 +624,7 @@ INSERT INTO Address (Country, County, ZipCode, City, Street, Floor, HouseNumber,
 ('Slovakia', 'Bratislava', 81101, 'Bratislava', 'Hlavné námestie', 2, 7, 32),
 ('Romania', 'Bucharest', 010101, 'Bucharest', 'Calea Victoriei', NULL, 10, 33);
 
-INSERT INTO [User] (Name, Email, Rank, BirthDate) VALUES
+INSERT INTO [Users] (Name, Email, Rank, BirthDate) VALUES
 ('Kiss Áron', 'kiss.aron@example.com', 1, '1990-01-02'),
 ('Németh Barbara', 'nemeth.barbara@example.com', 1, '1991-02-03'),
 ('Szűcs Csaba', 'szucs.csaba@example.com', 1, '1992-03-04'),
@@ -664,7 +659,7 @@ INSERT INTO [User] (Name, Email, Rank, BirthDate) VALUES
 ('Peter Novák', 'peter.novak@example.com', 1, '1991-02-04'),
 ('Elena Popescu', 'elena.popescu@example.com', 1, '1992-03-05');
 
-INSERT INTO Address (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
+INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
 ('Hungary', 'Budapest', 1034, 'Budapest', 'Árpád út', NULL, 10, 34),
 ('Hungary', 'Budapest', 1035, 'Budapest', 'Bécsi út', 2, 5, 35),
 ('Hungary', 'Budapest', 1036, 'Budapest', 'Csillaghegyi út', NULL, 20, 36),
@@ -699,7 +694,7 @@ INSERT INTO Address (Country, County, ZipCode, City, Street, Floor, HouseNumber,
 ('Slovakia', 'Bratislava', 81102, 'Bratislava', 'Michalská ulica', 2, 7, 65),
 ('Romania', 'Bucharest', 010102, 'Bucharest', 'Lipscani', NULL, 10, 66);
 
-INSERT INTO [User] (Name, Email, Rank, BirthDate) VALUES
+INSERT INTO [Users] (Name, Email, Rank, BirthDate) VALUES
 ('Kiss Áron', 'kiss.aron@example.com', 1, '2005-03-12'),
 ('Németh Barbara', 'nemeth.barbara@example.com', 1, '2008-07-25'),
 ('Szűcs Csaba', 'szucs.csaba@example.com', 1, '2003-11-18'),
@@ -731,7 +726,7 @@ INSERT INTO [User] (Name, Email, Rank, BirthDate) VALUES
 ('Sándor Henrietta', 'sandor.henrietta@example.com', 1, '2000-12-18'),
 ('Fodor István', 'fodor.istvan@example.com', 1, '2013-08-07');
 
-INSERT INTO Address (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
+INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
 ('Hungary', 'Budapest', 1034, 'Budapest', 'Árpád út', NULL, 10, 67),
 ('Hungary', 'Budapest', 1035, 'Budapest', 'Bécsi út', 2, 5, 68),
 ('Hungary', 'Budapest', 1036, 'Budapest', 'Csillaghegyi út', NULL, 20, 69),
@@ -781,7 +776,7 @@ DECLARE @PriceEighteen DECIMAL(18, 2) = 10.00;
 DECLARE @Counter INT = 1;
 DECLARE @TotalScreenings INT;
 
-SET @TotalScreenings = (SELECT COUNT(*) FROM Screening);
+SET @TotalScreenings = (SELECT COUNT(*) FROM Screenings);
 
 WHILE @Counter <= @TotalScreenings
 BEGIN
@@ -791,10 +786,10 @@ BEGIN
         @MaxSeatRow = r.MaxSeatRow, 
         @MaxSeatColumn = r.MaxSeatColumn,
         @AgeRating = f.AgeRating
-    FROM Screening s
-    JOIN Room r ON s.RoomId = r.RoomId
+    FROM Screenings s
+    JOIN Rooms r ON s.RoomId = r.RoomId
     JOIN Films f ON s.FilmId = f.Id
-    WHERE s.Id NOT IN (SELECT TOP (@Counter - 1) Id FROM Screening ORDER BY Id)
+    WHERE s.Id NOT IN (SELECT TOP (@Counter - 1) Id FROM Screenings ORDER BY Id)
     ORDER BY s.Id;
 
     SET @Price = 
@@ -813,7 +808,7 @@ BEGIN
     BEGIN
         WHILE @SeatColumn <= @MaxSeatColumn
         BEGIN
-            INSERT INTO Ticket (ScreeningId, SeatRow, SeatColumn, Price)
+            INSERT INTO Tickets (ScreeningId, SeatRow, SeatColumn, Price)
             VALUES (@ScreeningId, @SeatRow, @SeatColumn, @Price);
 
             SET @SeatColumn = @SeatColumn + 1;
@@ -828,27 +823,27 @@ BEGIN
 END;
 
 
-INSERT INTO Purchase (UserId, PurchaseDate, TotalPrice) VALUES (1, '2025-06-15 14:00:00', 14.00);
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 1 AND SeatRow = 1 AND SeatColumn = 1;
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 1 AND SeatRow = 1 AND SeatColumn = 2;
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (1, '2025-06-15 14:00:00', 14.00);
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 1 AND SeatRow = 1 AND SeatColumn = 1;
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 1 AND SeatRow = 1 AND SeatColumn = 2;
 
 
-INSERT INTO Purchase (UserId, PurchaseDate, TotalPrice) VALUES (2, '2025-07-22 18:30:00', 14.00);
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 2 AND SeatRow = 2 AND SeatColumn = 3;
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 2 AND SeatRow = 2 AND SeatColumn = 4;
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (2, '2025-07-22 18:30:00', 14.00);
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 2 AND SeatRow = 2 AND SeatColumn = 3;
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 2 AND SeatRow = 2 AND SeatColumn = 4;
 
 
-INSERT INTO Purchase (UserId, PurchaseDate, TotalPrice) VALUES (3, '2025-08-10 12:00:00', 14.00);
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 3 AND SeatRow = 3 AND SeatColumn = 5;
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 3 AND SeatRow = 3 AND SeatColumn = 6;
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (3, '2025-08-10 12:00:00', 14.00);
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 3 AND SeatRow = 3 AND SeatColumn = 5;
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 3 AND SeatRow = 3 AND SeatColumn = 6;
 
 
-INSERT INTO Purchase (UserId, PurchaseDate, TotalPrice) VALUES (4, '2025-06-20 16:00:00', 14.00);
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 4 AND SeatRow = 4 AND SeatColumn = 7;
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 4 AND SeatRow = 4 AND SeatColumn = 8;
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (4, '2025-06-20 16:00:00', 14.00);
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 4 AND SeatRow = 4 AND SeatColumn = 7;
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 4 AND SeatRow = 4 AND SeatColumn = 8;
 
 
-INSERT INTO Purchase (UserId, PurchaseDate, TotalPrice) VALUES (5, '2025-07-05 20:00:00', 14.00);
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 5 AND SeatRow = 5 AND SeatColumn = 9;
-UPDATE Ticket SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 5 AND SeatRow = 5 AND SeatColumn = 10;
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (5, '2025-07-05 20:00:00', 14.00);
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 5 AND SeatRow = 5 AND SeatColumn = 9;
+UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 5 AND SeatRow = 5 AND SeatColumn = 10;
 
