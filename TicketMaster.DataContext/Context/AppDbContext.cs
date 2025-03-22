@@ -10,11 +10,17 @@ namespace TicketMaster.DataContext.Context
 {
     public class AppDbContext :DbContext
     {
+        public DbSet<Address> Addresses { get; set; }
         public DbSet<Film> Films { get; set; }
+        public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Screening> Screenings { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Room> Rooms { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
         { }
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //    => optionsBuilder.UseSqlServer("Name=ConnectionStrings:TicketMasterDatabase");
+        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //   => optionsBuilder.UseSqlServer("Name=ConnectionStrings:GergoDatabase");
     }
 }
