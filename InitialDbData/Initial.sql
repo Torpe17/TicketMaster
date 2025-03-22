@@ -567,7 +567,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (70, 6, '2025-08-24 17:30:00'),
 (70, 8, '2025-06-30 10:00:00');
 
-INSERT INTO [Users] (Name, Email, Rank, BirthDate) VALUES
+INSERT INTO Users (Name, Email, Rank, BirthDate) VALUES
 ('Kovács Ádám', 'kovacs.adam@example.com', 1, '1990-01-01'),
 ('Nagy Eszter', 'nagy.eszter@example.com', 1, '1991-02-02'),
 ('Tóth Balázs', 'toth.balazs@example.com', 1, '1992-03-03'),
@@ -637,7 +637,7 @@ INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumbe
 ('Slovakia', 'Bratislava', 81101, 'Bratislava', 'Hlavné námestie', 2, 7, 32),
 ('Romania', 'Bucharest', 010101, 'Bucharest', 'Calea Victoriei', NULL, 10, 33);
 
-INSERT INTO [Users] (Name, Email, Rank, BirthDate) VALUES
+INSERT INTO Users (Name, Email, Rank, BirthDate) VALUES
 ('Kiss Áron', 'kiss.aron@example.com', 1, '1990-01-02'),
 ('Németh Barbara', 'nemeth.barbara@example.com', 1, '1991-02-03'),
 ('Szűcs Csaba', 'szucs.csaba@example.com', 1, '1992-03-04'),
@@ -707,7 +707,7 @@ INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumbe
 ('Slovakia', 'Bratislava', 81102, 'Bratislava', 'Michalská ulica', 2, 7, 65),
 ('Romania', 'Bucharest', 010102, 'Bucharest', 'Lipscani', NULL, 10, 66);
 
-INSERT INTO [Users] (Name, Email, Rank, BirthDate) VALUES
+INSERT INTO Users (Name, Email, Rank, BirthDate) VALUES
 ('Kiss Áron', 'kiss.aron@example.com', 1, '2005-03-12'),
 ('Németh Barbara', 'nemeth.barbara@example.com', 1, '2008-07-25'),
 ('Szűcs Csaba', 'szucs.csaba@example.com', 1, '2003-11-18'),
