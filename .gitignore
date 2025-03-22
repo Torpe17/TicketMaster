@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /TicketMaster.DataContext/Migrations
+.idea/.idea.TicketMaster/.idea/vcs.xml
+.idea/.idea.TicketMaster/.idea/indexLayout.xml
+.idea/.idea.TicketMaster/.idea/vcs.xml

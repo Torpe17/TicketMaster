@@ -19,7 +19,13 @@ namespace TicketMaster
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
+                // temporarily until launchSettings is solved
+                // currently it is fetched from appsettings
+                // the connection string alias needs to be changed according to dev
+                var conString = builder.Configuration.GetConnectionString("TicketMasterDatabase") ??
+                                throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
+                options.UseSqlServer(conString);
+                //options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
                 //launchsettings.json -> environmentVariables -> ConnectionStrings:UserDatabase
             });
             //Server=localhost;Database=TicketMaster;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=true
