@@ -30,7 +30,7 @@ namespace TicketMaster.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AddressGetDTO>>> GetAddresses()
         {
-            var addresses = await _unitOfWork.AddressRepository.GetAsync();
+            var addresses = await _unitOfWork.AddressRepository.GetAsync(includedProperties: ["User"]);
             return _mapper.Map<List<AddressGetDTO>>(addresses); 
         }
 
