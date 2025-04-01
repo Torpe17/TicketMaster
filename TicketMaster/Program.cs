@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Data;
+using System.Reflection;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.Services;
@@ -45,6 +46,7 @@ namespace TicketMaster
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TicketMaster" });
             });
 
+            builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             var app = builder.Build();
 
