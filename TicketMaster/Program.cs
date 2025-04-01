@@ -5,6 +5,7 @@ using System.Data;
 using System.Reflection;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
+using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services;
 
 namespace TicketMaster
@@ -35,6 +36,8 @@ namespace TicketMaster
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            builder.Services.AddScoped<UnitOfWork>();
 
             // Adding FilmService to the scope
             builder.Services.AddScoped<IFilmService, FilmService>();
