@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
+using TicketMaster.DataContext.UnitsOfWork;
+using TicketMaster.Services.DTOs;
 
 namespace TicketMaster.Controllers
 {
@@ -14,95 +17,98 @@ namespace TicketMaster.Controllers
     [ApiController]
     public class AddressesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
 
-        public AddressesController(AppDbContext context)
+        public AddressesController(UnitOfWork unitOfWork, IMapper mapper)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         // GET: api/Addresses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Address>>> GetAddresses()
+        public async Task<ActionResult<IEnumerable<AddressGetDTO>>> GetAddresses()
         {
-            return await _context.Addresses.ToListAsync();
+            var addresses = await _unitOfWork.AddressRepository.GetAsync();
+            return _mapper.Map<List<AddressGetDTO>>(addresses); 
         }
 
-        // GET: api/Addresses/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Address>> GetAddress(int id)
-        {
-            var address = await _context.Addresses.FindAsync(id);
+        //// GET: api/Addresses/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<Address>> GetAddress(int id)
+        //{
+        //    var address = await _context.Addresses.FindAsync(id);
 
-            if (address == null)
-            {
-                return NotFound();
-            }
+        //    if (address == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return address;
-        }
+        //    return address;
+        //}
 
-        // PUT: api/Addresses/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAddress(int id, Address address)
-        {
-            if (id != address.Id)
-            {
-                return BadRequest();
-            }
+        //// PUT: api/Addresses/5
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutAddress(int id, Address address)
+        //{
+        //    if (id != address.Id)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(address).State = EntityState.Modified;
+        //    _context.Entry(address).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AddressExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!AddressExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
-        // POST: api/Addresses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Address>> PostAddress(Address address)
-        {
-            _context.Addresses.Add(address);
-            await _context.SaveChangesAsync();
+        //// POST: api/Addresses
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPost]
+        //public async Task<ActionResult<Address>> PostAddress(Address address)
+        //{
+        //    _context.Addresses.Add(address);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAddress", new { id = address.Id }, address);
-        }
+        //    return CreatedAtAction("GetAddress", new { id = address.Id }, address);
+        //}
 
-        // DELETE: api/Addresses/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAddress(int id)
-        {
-            var address = await _context.Addresses.FindAsync(id);
-            if (address == null)
-            {
-                return NotFound();
-            }
+        //// DELETE: api/Addresses/5
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteAddress(int id)
+        //{
+        //    var address = await _context.Addresses.FindAsync(id);
+        //    if (address == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            _context.Addresses.Remove(address);
-            await _context.SaveChangesAsync();
+        //    _context.Addresses.Remove(address);
+        //    await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
-        private bool AddressExists(int id)
-        {
-            return _context.Addresses.Any(e => e.Id == id);
-        }
+        //private bool AddressExists(int id)
+        //{
+        //    return _context.Addresses.Any(e => e.Id == id);
+        //}
     }
 }
