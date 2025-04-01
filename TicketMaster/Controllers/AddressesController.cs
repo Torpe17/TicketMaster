@@ -34,50 +34,52 @@ namespace TicketMaster.Controllers
             return _mapper.Map<List<AddressGetDTO>>(addresses); 
         }
 
-        //// GET: api/Addresses/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Address>> GetAddress(int id)
-        //{
-        //    var address = await _context.Addresses.FindAsync(id);
+        // GET: api/Addresses/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AddressGetDTO>> GetAddress(int id)
+        {
+            var address = await _unitOfWork.AddressRepository.GetByIdAsync(id, includedReferences: ["User"]);
 
-        //    if (address == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (address == null)
+            {
+                return NotFound();
+            }
 
-        //    return address;
-        //}
+            return _mapper.Map<AddressGetDTO>(address);
+        }
 
-        //// PUT: api/Addresses/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutAddress(int id, Address address)
-        //{
-        //    if (id != address.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        // PUT: api/Addresses/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAddress(int id, AddressPutDTO dto)
+        {
+            Address? a = await _unitOfWork.AddressRepository.GetByIdAsync(id);
+            if (a == null)
+            {
+                return NotFound();
+            }
+            //TODO: floor ha nem stringként van megadva akkor nem dob hibát
 
-        //    _context.Entry(address).State = EntityState.Modified;
+            _mapper.Map(dto, a);
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!AddressExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+            try
+            {
+                await _unitOfWork.SaveAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AddressExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-        //    return NoContent();
-        //}
+            return Ok();
+        }
 
         //// POST: api/Addresses
         //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -106,9 +108,9 @@ namespace TicketMaster.Controllers
         //    return NoContent();
         //}
 
-        //private bool AddressExists(int id)
-        //{
-        //    return _context.Addresses.Any(e => e.Id == id);
-        //}
+        private bool AddressExists(int id)
+        {
+            return _unitOfWork.AddressRepository.GetByIdAsync(id) != null;
+        }
     }
 }
