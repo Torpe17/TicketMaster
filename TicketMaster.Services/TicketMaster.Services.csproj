@@ -28,5 +28,9 @@
   <ItemGroup>
     <ProjectReference Include="..\TicketMaster.DataContext\TicketMaster.DataContext.csproj" />
   </ItemGroup>
+	
+	<ItemGroup>
+		<Folder Include="DTOs\" />
+	</ItemGroup>
 
 </Project>

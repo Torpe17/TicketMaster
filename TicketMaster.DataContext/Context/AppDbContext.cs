@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection.Metadata;
 
 namespace TicketMaster.DataContext.Context
 {
@@ -22,5 +23,12 @@ namespace TicketMaster.DataContext.Context
         { }
         // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //   => optionsBuilder.UseSqlServer("Name=ConnectionStrings:GergoDatabase");
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Address>()
+                .HasOne(a => a.User)
+                .WithOne(u => u.Address)
+                .HasForeignKey<User>(u => u.AddressId);
+        }
     }
 }
