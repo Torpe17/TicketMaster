@@ -13,7 +13,8 @@
         public string Name { get; set; }
         public string Email { get; set; }
         public Rank Rank { get; set; }
-        public Address Address { get; set; }
+        public int? AddressId { get; set; }
+        public Address? Address { get; set; }
         public DateOnly BirthDate { get; set; }
         public List<Purchase> Purchases { get; set; }
     }
