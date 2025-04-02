@@ -5,6 +5,7 @@ using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.PurchaseDTOs;
 
 namespace TicketMaster.Controllers;
 
@@ -24,16 +25,16 @@ public class PurchaseController : Controller
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PurchaseGetDto>>> GetPurchases()
+    public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetPurchases()
     {
         var purchases = await _unitOfWork.PurchaseRepository.GetAsync(
             includedProperties: ["User", "Tickets"]
             );
-        return _mapper.Map<List<PurchaseGetDto>>(purchases);
+        return _mapper.Map<List<PurchaseGetDTO>>(purchases);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<PurchaseGetDto>> GetPurchase(int id)
+    public async Task<ActionResult<PurchaseGetDTO>> GetPurchase(int id)
     {
         var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(
             id,
@@ -43,7 +44,7 @@ public class PurchaseController : Controller
         {
             return NotFound();
         }
-        return _mapper.Map<PurchaseGetDto>(purchase);
+        return _mapper.Map<PurchaseGetDTO>(purchase);
     }
 
     [HttpPost]
@@ -62,7 +63,7 @@ public class PurchaseController : Controller
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutPurchase(int id, PurchasePutDto purchase)
+    public async Task<IActionResult> PutPurchase(int id, PurchasePutDTO purchase)
     {
         Purchase? p = await _unitOfWork.PurchaseRepository.GetByIdAsync(id);
         if (p == null) return NotFound();

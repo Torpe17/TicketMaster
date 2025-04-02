@@ -1,6 +1,6 @@
-namespace TicketMaster.Services.DTOs;
+namespace TicketMaster.Services.DTOs.PurchaseDTOs;
 
-public class PurchaseGetDto
+public class PurchaseGetDTO
 {
     public int Id { get; set; }
     public int? UserId { get; set; }

@@ -1,8 +1,6 @@
-using TicketMaster.DataContext.Models;
+namespace TicketMaster.Services.DTOs.PurchaseDTOs;
 
-namespace TicketMaster.Services.DTOs;
-
-public class PurchasePutDto
+public class PurchasePutDTO
 {
     public bool SetUserId { get; set; }
     public int? UserId { get; set; }
