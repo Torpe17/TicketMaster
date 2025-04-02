@@ -48,18 +48,24 @@ public class PurchaseController : Controller
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] Purchase purchase)
+    public async Task<IActionResult> PostPurchase(PurchasePostDTO @purchase)
     {
-        try
+        // TO-DO: errod handling
+        if (@purchase.UserId != null)
         {
-            var result = _unitOfWork.PurchaseRepository.InsertAsync(purchase);
-            _unitOfWork.Save();
-            return Ok(result);
+            User? user = await _unitOfWork.UserRepository.GetByIdAsync(@purchase.UserId.Value);
+            if (user == null)
+            {
+                return BadRequest("User does not exist.");
+            }
         }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        
+        Purchase newPurchase = _mapper.Map<Purchase>(@purchase);
+        
+        await _unitOfWork.PurchaseRepository.InsertAsync(newPurchase);
+        await _unitOfWork.SaveAsync();
+
+        return Created();
     }
 
     [HttpPut("{id}")]
