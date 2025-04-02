@@ -32,6 +32,20 @@ public class PurchaseController : Controller
         return _mapper.Map<List<PurchaseGetDto>>(purchases);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<PurchaseGetDto>> GetPurchase(int id)
+    {
+        var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(
+            id,
+            includedReferences: ["User"],
+            includedCollections: ["Tickets"]);
+        if (purchase == null)
+        {
+            return NotFound();
+        }
+        return _mapper.Map<PurchaseGetDto>(purchase);
+    }
+
     [HttpPost]
     public IActionResult Post([FromBody] Purchase purchase)
     {
@@ -47,19 +61,24 @@ public class PurchaseController : Controller
         }
     }
 
-    [HttpPut]
-    public IActionResult Put([FromBody] Purchase purchase)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutPurchase(int id, PurchasePutDto purchase)
     {
+        Purchase? p = await _unitOfWork.PurchaseRepository.GetByIdAsync(id);
+        if (p == null) return NotFound();
+        
+        _mapper.Map(purchase, p);
         try
         {
-            _unitOfWork.PurchaseRepository.Update(purchase);
-            _unitOfWork.Save();
-            return Ok();
+            await _unitOfWork.SaveAsync();
         }
         catch (Exception e)
         {
-            return BadRequest(e.Message);
+            // TODO: better error handling
+            return NotFound(e.Message);
         }
+
+        return Ok();
     }
     
     [HttpDelete]
