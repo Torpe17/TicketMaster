@@ -9,15 +9,21 @@ public class PurchaseProfile : Profile
 {
     public PurchaseProfile()
     {
+        // get
         CreateMap<Purchase, PurchaseGetDTO>()
             .ForMember(dest => dest.TicketCount, opt => opt.MapFrom(src => src.Tickets.Count));
 
+        // getbyid
         CreateMap<Purchase, PurchaseGetDTO>();
         CreateMap<Ticket, PurchaseTicketListDTO>();
+        
+        // post
+        CreateMap<PurchasePostDTO, Purchase>();
+
+        // put
         CreateMap<PurchasePutDTO, Purchase>()
             .ForMember(p => p.PurchaseDate, opt => opt.PreCondition(dto => dto.PurchaseDate != null))
             .ForMember(p => p.UserId, opt => opt.PreCondition(dto => dto.SetUserId == true))
             .ForMember(p => p.TotalPrice, opt => opt.PreCondition(dto => dto.TotalPrice != null));
-
     }
 }
