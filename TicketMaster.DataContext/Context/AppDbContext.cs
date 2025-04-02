@@ -20,6 +20,15 @@ namespace TicketMaster.DataContext.Context
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
         { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Purchase>()
+                .HasMany(p => p.Tickets)
+                .WithOne(t => t.Purchase)
+                .HasForeignKey(t => t.PurchaseId);
+            base.OnModelCreating(modelBuilder);
+        }
         // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //   => optionsBuilder.UseSqlServer("Name=ConnectionStrings:GergoDatabase");
     }

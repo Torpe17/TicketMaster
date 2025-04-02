@@ -24,9 +24,11 @@ public class PurchaseController : Controller
     }
     
     [HttpGet]
-    public async Task<List<ActionResult<IEnumerable<PurchaseGetDto>>>> GetPurchases()
+    public async Task<ActionResult<IEnumerable<PurchaseGetDto>>> GetPurchases()
     {
-        var purchases = await _unitOfWork.PurchaseRepository.GetAsync();
+        var purchases = await _unitOfWork.PurchaseRepository.GetAsync(
+            includedProperties: ["User", "Tickets"]
+            );
         return _mapper.Map<List<PurchaseGetDto>>(purchases);
     }
 
