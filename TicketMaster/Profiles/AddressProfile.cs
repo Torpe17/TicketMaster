@@ -15,6 +15,8 @@ namespace TicketMaster.Services.Profiles
         {
             CreateMap<Address, AddressGetDTO>();
 
+            CreateMap<AddressPostDTO, Address>();
+
             CreateMap<AddressPutDTO, Address>()
                 .ForMember(a => a.Country, opt => opt.PreCondition(dto => dto.Country != null))
                 .ForMember(a => a.County, opt => opt.PreCondition(dto => dto.County != null))
@@ -24,6 +26,7 @@ namespace TicketMaster.Services.Profiles
                 .ForMember(a => a.HouseNumber, opt => opt.PreCondition(dto => dto.HouseNumber != null))
                 .ForMember(a => a.UserId, opt => opt.PreCondition(dto => dto.UserId != null))
                 .ForMember(a => a.Floor, opt => opt.PreCondition(dto => dto.SetFloor == true));
+
         }
     }
 }

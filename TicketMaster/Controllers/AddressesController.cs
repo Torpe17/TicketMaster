@@ -81,16 +81,27 @@ namespace TicketMaster.Controllers
             return Ok();
         }
 
-        //// POST: api/Addresses
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Address>> PostAddress(Address address)
-        //{
-        //    _context.Addresses.Add(address);
-        //    await _context.SaveChangesAsync();
+        // POST: api/Addresses
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Address>> PostAddress(AddressPostDTO address)
+        {
+            User? user = await _unitOfWork.UserRepository.GetByIdAsync(address.UserId, includedReferences: ["Address"]);
+            if (user == null) {
+                return BadRequest($"User with id({address.UserId}) not found");
+            }
+            
+            if (user.Address != null)
+            {
+                return BadRequest($"Only one address is allowed for a user");
+            }
+            Address newAddress = _mapper.Map<Address>(address);
 
-        //    return CreatedAtAction("GetAddress", new { id = address.Id }, address);
-        //}
+            await _unitOfWork.AddressRepository.InsertAsync(newAddress);
+            await _unitOfWork.SaveAsync();
+            
+            return Created();
+        }
 
         //// DELETE: api/Addresses/5
         //[HttpDelete("{id}")]
