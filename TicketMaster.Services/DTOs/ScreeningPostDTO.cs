@@ -12,7 +12,5 @@ namespace TicketMaster.Services.DTOs
         public int FilmId { get; set; }
         public int RoomId { get; set; }
         public DateTime Date { get; set; }
-        public Film Film { get; set; }
-        public List<Ticket> Tickets { get; set; }
     }
 }

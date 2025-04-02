@@ -14,7 +14,10 @@ namespace TicketMaster.Services.Profiles
     {
         public ScreeningProfile()
         {
-            CreateMap<Screening, ScreeningGetDTO>();
+            CreateMap<Screening, ScreeningGetDTO>().ForMember(
+                    dest => dest.TicketCount,
+                    opt => opt.MapFrom(t => t.Tickets.Count)
+                ).ForMember(dest => dest.FilmName, opt => opt.MapFrom(f => f.Film.Title));
 
             CreateMap<ScreeningPutDTO, Screening>()
                 .ForMember(s => s.FilmId, opt => opt.PreCondition(dto => dto.FilmId != null))

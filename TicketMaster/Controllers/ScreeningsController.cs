@@ -19,8 +19,8 @@ namespace TicketMaster.Controllers
     [ApiController]
     public class ScreeningsController : ControllerBase
     {
-        private UnitOfWork unitOfWork;
-        private IMapper mapper;
+        private readonly UnitOfWork unitOfWork;
+        private readonly IMapper mapper;
 
         public ScreeningsController(UnitOfWork _unitOfWork, IMapper _mapper)
         {
@@ -33,7 +33,7 @@ namespace TicketMaster.Controllers
         public async Task<ActionResult<IEnumerable<ScreeningGetDTO>>> GetScreenings()
         {
             var screenings = await unitOfWork.ScreeningRepository.GetAsync(
-                //includedProperties: ["Film", "Tickets"]
+                includedProperties: ["Film", "Tickets"]
                 );
             return mapper.Map<List<ScreeningGetDTO>>(screenings);
         }
@@ -43,15 +43,17 @@ namespace TicketMaster.Controllers
         public async Task<ActionResult<ScreeningGetDTO>> GetScreening(int id)
         {
             var screening = await unitOfWork.ScreeningRepository.GetByIdAsync(
-                 id,
-                 includedReferences: ["Film"],
-                 includedCollections: ["Tickets"]
+                 id
                  );
 
             if (screening == null)
             {
                 return NotFound();
             }
+
+            await unitOfWork.ScreeningRepository.GetByIdAsync(id, includedReferences: ["Film"]);
+            await unitOfWork.ScreeningRepository.GetByIdAsync(id, includedCollections: ["Tickets"]);
+
             return mapper.Map<ScreeningGetDTO>(screening);
         }
 
@@ -67,17 +69,10 @@ namespace TicketMaster.Controllers
                 return NotFound();
             }
 
-            var tickets = await unitOfWork.TicketRepository.GetAsync(
-                includedProperties: ["Screening"]
-                );
-
-            //_context.Entry(@event).State = EntityState.Modified;
-            //_unitOfWork.EventRepository.Update(@event);
             mapper.Map(dto, screening);
 
             try
             {
-                //await _context.SaveChangesAsync();
                 await unitOfWork.SaveAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -100,23 +95,6 @@ namespace TicketMaster.Controllers
         [HttpPost]
         public async Task<ActionResult> PostScreening(ScreeningPostDTO screening)
         {
-            /*if (screening.RoomId != null)
-            {
-                Room? room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
-                if (room == null)
-                {
-                    return BadRequest("Room does not exist");
-                }
-            }
-            if (screening.FilmId != null)
-            {
-                Film? film = await unitOfWork.FilmRepository.GetByIdAsync(screening.FilmId);
-                if (film == null)
-                {
-                    return BadRequest("Film does not exist");
-                }
-            }*/
-
             Screening newScreening = mapper.Map<Screening>(screening);
 
             await unitOfWork.ScreeningRepository.InsertAsync(newScreening);
