@@ -34,7 +34,7 @@ public class PurchaseController : Controller
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<PurchaseGetDTO>> GetPurchase(int id)
+    public async Task<ActionResult<PurchaseGetByIdDTO>> GetPurchase(int id)
     {
         var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(
             id,
@@ -44,7 +44,7 @@ public class PurchaseController : Controller
         {
             return NotFound();
         }
-        return _mapper.Map<PurchaseGetDTO>(purchase);
+        return Ok(_mapper.Map<PurchaseGetByIdDTO>(purchase));
     }
 
     [HttpPost]
