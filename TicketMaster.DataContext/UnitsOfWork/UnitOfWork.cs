@@ -16,7 +16,7 @@ public class UnitOfWork
         TicketRepository = new GenericRepository<Ticket>(context);
         UserRepository = new GenericRepository<User>(context);
     }
-    private readonly AppDbContext _context;
+    private AppDbContext _context;
     public GenericRepository<Film> FilmRepository { get; set; }
     public GenericRepository<Purchase> PurchaseRepository { get; set; }
     public GenericRepository<Room> RoomRepository { get; set;  }
