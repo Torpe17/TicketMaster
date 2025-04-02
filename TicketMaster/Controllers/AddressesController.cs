@@ -88,7 +88,7 @@ namespace TicketMaster.Controllers
         {
             User? user = await _unitOfWork.UserRepository.GetByIdAsync(address.UserId, includedReferences: ["Address"]);
             if (user == null) {
-                return BadRequest($"User with id({address.UserId}) not found");
+                return BadRequest($"User (id: {address.UserId}) not found");
             }
             
             if (user.Address != null)
@@ -103,21 +103,19 @@ namespace TicketMaster.Controllers
             return Created();
         }
 
-        //// DELETE: api/Addresses/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteAddress(int id)
-        //{
-        //    var address = await _context.Addresses.FindAsync(id);
-        //    if (address == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.Addresses.Remove(address);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
+        // DELETE: api/Addresses/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAddress(int id)
+        {
+            if ((await _unitOfWork.AddressRepository.GetByIdAsync(id)) == null)
+            {
+                return BadRequest($"Address (id: {id}) not found");
+            }
+            await _unitOfWork.AddressRepository.DeleteByIdAsync(id);
+            await _unitOfWork.SaveAsync();
+            
+            return NoContent();
+        }
 
         private bool AddressExists(int id)
         {
