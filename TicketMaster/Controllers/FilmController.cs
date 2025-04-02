@@ -46,7 +46,7 @@ namespace TicketMaster.Controllers
 
             if (film == null)
             {
-                return NotFound();
+                return NotFound("Film not found");
             }
 
             return _mapper.Map<FilmGetDTO>(film);
@@ -60,9 +60,18 @@ namespace TicketMaster.Controllers
             Film? f = await _unitOfWork.FilmRepository.GetByIdAsync(id);
             if (film == null)
             {
-                return BadRequest();
+                return BadRequest("Film was empty");
             }
-            
+
+            if (film.Length != null && film.Length <= 0)
+            {
+                return BadRequest("Length can't be negative or 0 length");
+            }
+            if ((film.AgeRating < 0 || film.AgeRating > 18) && film.SetAgeRating)
+            {
+                return BadRequest("Age rating must be between 0 and 18 including 0 and 18");
+            }
+
             _mapper.Map(film, f);
 
             try
@@ -73,13 +82,14 @@ namespace TicketMaster.Controllers
             {
                 if (!FilmExists(id))
                 {
-                    return NotFound();
+                    return NotFound("Film not found");
                 }
                 else
                 {
                     throw;
                 }
             }
+            return Content("Film updated");
             return Ok();
         }
 
@@ -110,7 +120,7 @@ namespace TicketMaster.Controllers
             await _unitOfWork.FilmRepository.InsertAsync(newFilm);
             await _unitOfWork.SaveAsync();
 
-            //return CreatedAtAction("GetEvent", new { id = @event.Id }, @event);
+            return Content("Film created"); 
             return Created();
         }
 
@@ -120,7 +130,8 @@ namespace TicketMaster.Controllers
         {
             await _unitOfWork.FilmRepository.DeleteByIdAsync(id);
             await _unitOfWork.SaveAsync();
-
+            
+            return Content("Film deleted");
             return NoContent();
         }
 
