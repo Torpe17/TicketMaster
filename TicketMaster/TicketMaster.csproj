@@ -25,8 +25,4 @@
     <ProjectReference Include="..\TicketMaster.Services\TicketMaster.Services.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Profiles\" />
-  </ItemGroup>
-
 </Project>
