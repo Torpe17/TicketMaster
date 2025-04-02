@@ -25,10 +25,10 @@ namespace TicketMaster.DataContext.Context
         //   => optionsBuilder.UseSqlServer("Name=ConnectionStrings:GergoDatabase");
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Address>()
-                .HasOne(a => a.User)
-                .WithOne(u => u.Address)
-                .HasForeignKey<User>(u => u.AddressId);
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Address)
+                .WithOne(a => a.User)
+                .HasForeignKey<Address>(a => a.UserId);
         }
     }
 }
