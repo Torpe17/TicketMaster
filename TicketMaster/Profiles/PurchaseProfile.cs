@@ -14,7 +14,7 @@ public class PurchaseProfile : Profile
             .ForMember(dest => dest.TicketCount, opt => opt.MapFrom(src => src.Tickets.Count));
 
         // getbyid
-        CreateMap<Purchase, PurchaseGetDTO>();
+        CreateMap<Purchase, PurchaseGetByIdDTO>();
         CreateMap<Ticket, PurchaseTicketListDTO>();
         
         // post

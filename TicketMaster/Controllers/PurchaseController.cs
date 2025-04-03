@@ -36,10 +36,11 @@ public class PurchaseController : Controller
     [HttpGet("{id}")]
     public async Task<ActionResult<PurchaseGetByIdDTO>> GetPurchase(int id)
     {
-        var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(
-            id,
-            includedReferences: ["User"],
-            includedCollections: ["Tickets"]);
+        // var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(id, includedReferences: ["User"], includedCollections: ["Tickets"]); // race condition if both are set at the same time
+        var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(id);
+        await _unitOfWork.PurchaseRepository.GetByIdAsync(id, includedReferences: ["User"]);
+        await _unitOfWork.PurchaseRepository.GetByIdAsync(id, includedCollections: ["Tickets"]);
+        
         if (purchase == null)
         {
             return NotFound();
@@ -50,7 +51,7 @@ public class PurchaseController : Controller
     [HttpPost]
     public async Task<IActionResult> PostPurchase(PurchasePostDTO @purchase)
     {
-        // TO-DO: errod handling
+        // TO-DO: error handling
         if (@purchase.UserId != null)
         {
             User? user = await _unitOfWork.UserRepository.GetByIdAsync(@purchase.UserId.Value);
