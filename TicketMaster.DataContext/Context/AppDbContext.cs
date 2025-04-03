@@ -24,6 +24,11 @@ namespace TicketMaster.DataContext.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Address)
+                .WithOne(a => a.User)
+                .HasForeignKey<Address>(a => a.UserId);
+            
             modelBuilder.Entity<Purchase>()
                 .HasMany(p => p.Tickets)
                 .WithOne(t => t.Purchase)
@@ -32,12 +37,5 @@ namespace TicketMaster.DataContext.Context
         }
         // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //   => optionsBuilder.UseSqlServer("Name=ConnectionStrings:GergoDatabase");
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Address)
-                .WithOne(a => a.User)
-                .HasForeignKey<Address>(a => a.UserId);
-        }
     }
 }
