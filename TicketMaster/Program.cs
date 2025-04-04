@@ -24,7 +24,7 @@ namespace TicketMaster
                 // temporarily until launchSettings is solved
                 // currently it is fetched from appsettings
                 // the connection string alias needs to be changed according to dev
-                var conString = builder.Configuration.GetConnectionString("GergoDatabase") ??
+                var conString = builder.Configuration.GetConnectionString("TicketMasterDatabase") ??
                                 throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
                 options.UseSqlServer(conString);
                 //options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
@@ -39,8 +39,9 @@ namespace TicketMaster
 
             builder.Services.AddScoped<UnitOfWork>();
 
-            // Adding FilmService to the scope
+            // Adding Services to the scope
             builder.Services.AddScoped<IFilmService, FilmService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
