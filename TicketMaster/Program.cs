@@ -66,8 +66,8 @@ namespace TicketMaster
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "https://localhost:7293",
-                        ValidAudience = "https://localhost:7293", //ha lesz kliens akkor arra át kell írni pl:localalhost:4200
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"], //ha lesz kliens akkor arra át kell írni pl:localalhost:4200
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])), //appsettings.json
                         ClockSkew = TimeSpan.Zero
                     };

@@ -25,8 +25,8 @@ namespace TicketMaster.Services
         Task<UserDTO> RegisterAsync(UserRegisterDTO UserDTO);
         Task<string> LoginAsync(UserLoginDTO UserDTO);
         Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDTO UserDTO);
-        //Task<UserDTO> UpdateAddressAsync(int userId, AddressDto addressDto);
-        //Task<IList<RoleDto>> GetRolesAsync();
+        Task<UserWithAddressDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
+        Task<IList<RoleDTO>> UpdateAddressAsync();
         Task DeleteUser(int id);
     }
     public class UserService :IUserService
@@ -112,8 +112,8 @@ namespace TicketMaster.Services
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])); 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            //var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["Jwt:ExpireDays"]));
-            var expires = DateTime.Now.AddDays(Convert.ToDouble(15)); //15nap
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["Jwt:ExpireDays"]));
+            //var expires = DateTime.Now.AddDays(Convert.ToDouble(15)); //15nap
 
             var id = await GetClaimsIdentity(user);
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], id.Claims, expires: expires, signingCredentials: creds);
@@ -179,6 +179,30 @@ namespace TicketMaster.Services
             }
             await _unitOfWork.UserRepository.DeleteByIdAsync(id);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<UserWithAddressDTO> UpdateAddressAsync(int userId, AddressPutDTO dto)
+        {
+            await _unitOfWork.UserRepository.GetByIdAsync(userId, includedCollections: ["Roles"]);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedReferences: ["Address"]);
+            //var user = await _context.Users.Include(u => u.Address).Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+            dto.UserId = user.Id;
+
+            _mapper.Map(dto, user.Address);
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<UserWithAddressDTO>(user);
+        }
+
+        public async Task<IList<RoleDTO>> GetRolesAsync()
+        {
+            var roles = await _context.Roles.ToListAsync();
+            return _mapper.Map<IList<RoleDTO>>(roles);
         }
     }
 }

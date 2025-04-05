@@ -31,7 +31,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Users
         [HttpGet]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             return await _userService.GetUsersAsync();
@@ -39,7 +39,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserDTO>> GetUser(int id)
         {
             try
@@ -47,10 +47,8 @@ namespace TicketMaster.Controllers
                 var user = await _userService.GetUserByIdAsync(id);
                 return Ok(user);
             }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
         }
 
 
@@ -66,9 +64,15 @@ namespace TicketMaster.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] UserLoginDTO userDto)
         {
-            var token = await _userService.LoginAsync(userDto);
-            return Ok(new { Token = token });
+            try
+            {
+                var token = await _userService.LoginAsync(userDto);
+                return Ok(new { Token = token });
+            }
+            catch (UnauthorizedAccessException e) { return Unauthorized(e.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
         }
+
         [HttpPut("update-profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UserUpdateDTO userDto)
         {
@@ -78,14 +82,21 @@ namespace TicketMaster.Controllers
                 var result = await _userService.UpdateProfileAsync(userId, userDto);
                 return Ok(result);
             }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }            
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
+        [HttpPut("update-address")]
+        public async Task<IActionResult> UpdateAddress([FromBody] AddressPutDTO addressDto)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+            var result = await _userService.UpdateAddressAsync(userId, addressDto);
+            return Ok(result);
         }
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             try
@@ -93,10 +104,16 @@ namespace TicketMaster.Controllers
                 await _userService.DeleteUser(id);
                 return Ok();
             }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
+        [HttpGet("roles")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetRoles()
+        {
+            var result = await _userService.GetRolesAsync();
+            return Ok(result);
         }
     }
 }
