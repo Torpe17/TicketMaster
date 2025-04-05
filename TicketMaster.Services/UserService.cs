@@ -26,7 +26,7 @@ namespace TicketMaster.Services
         Task<string> LoginAsync(UserLoginDTO UserDTO);
         Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDTO UserDTO);
         Task<UserWithAddressDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
-        Task<IList<RoleDTO>> UpdateAddressAsync();
+        Task<IList<RoleDTO>> GetRolesAsync();
         Task DeleteUser(int id);
     }
     public class UserService :IUserService
