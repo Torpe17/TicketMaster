@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
@@ -89,9 +90,18 @@ namespace TicketMaster.Controllers
         [HttpPut("update-address")]
         public async Task<IActionResult> UpdateAddress([FromBody] AddressPutDTO addressDto)
         {
-            var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
-            var result = await _userService.UpdateAddressAsync(userId, addressDto);
-            return Ok(result);
+            try
+            {
+                var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                var result = await _userService.UpdateAddressAsync(userId, addressDto);
+                return Ok(result);
+            }
+            catch(SqlException e) { return BadRequest(e.InnerException); }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
         }
 
         // DELETE: api/Users/5

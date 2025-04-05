@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -25,7 +26,7 @@ namespace TicketMaster.Services
         Task<UserDTO> RegisterAsync(UserRegisterDTO UserDTO);
         Task<string> LoginAsync(UserLoginDTO UserDTO);
         Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDTO UserDTO);
-        Task<UserWithAddressDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
+        Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
         Task<IList<RoleDTO>> GetRolesAsync();
         Task DeleteUser(int id);
     }
@@ -181,7 +182,7 @@ namespace TicketMaster.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task<UserWithAddressDTO> UpdateAddressAsync(int userId, AddressPutDTO dto)
+        public async Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO dto)
         {
             await _unitOfWork.UserRepository.GetByIdAsync(userId, includedCollections: ["Roles"]);
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedReferences: ["Address"]);
@@ -191,11 +192,15 @@ namespace TicketMaster.Services
             }
             dto.UserId = user.Id;
 
+            if (user.Address == null) 
+            {
+                throw new InvalidDataException("User doesn't have address yet.");
+            } 
             _mapper.Map(dto, user.Address);
 
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<UserWithAddressDTO>(user);
+            return _mapper.Map<AddressGetDTO>(user.Address);
         }
 
         public async Task<IList<RoleDTO>> GetRolesAsync()
