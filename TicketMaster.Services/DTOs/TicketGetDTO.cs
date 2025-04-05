@@ -15,5 +15,9 @@ namespace TicketMaster.Services.DTOs
         public int SeatRow { get; set; }
         public int SeatColumn { get; set; }
         public double Price { get; set; }
+        public string FilmName { get; set; }
+        public DateTime FilmDate { get; set; }
+        public int RoomId { get; set; }
+        public DateTime PurchaseDate { get; set; }
     }
 }

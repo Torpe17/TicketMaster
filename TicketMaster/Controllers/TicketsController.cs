@@ -43,14 +43,18 @@ namespace TicketMaster.Controllers
         public async Task<ActionResult<TicketGetDTO>> GetTicket(int id)
         {
             var ticket = await unitOfWork.TicketRepository.GetByIdAsync(
-                id,
-                includedReferences: ["Purchase", "Screening"]
+                id//,
+                //includedReferences: ["Purchase", "Screening"]
                 );
 
             if (ticket == null)
             {
                 return NotFound();
             }
+
+            await unitOfWork.TicketRepository.GetByIdAsync(id, includedReferences: ["Purchase"]);
+            await unitOfWork.TicketRepository.GetByIdAsync(id, includedReferences: ["Screening"]);
+
             return mapper.Map<TicketGetDTO>(ticket);
         }
 

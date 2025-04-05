@@ -8,7 +8,15 @@ namespace TicketMaster.Profiles
     {
         public TicketProfile()
         {
-            CreateMap<Ticket, TicketGetDTO>();
+            CreateMap<Ticket, TicketGetDTO>()
+                .ForMember(dest => dest.FilmName, opt => opt.MapFrom(t => t.Screening.Film.Title))
+                .ForMember(dest => dest.FilmDate, opt => opt.MapFrom(t => t.Screening.Date))
+                .ForMember(dest => dest.RoomId, opt => opt.MapFrom(t => t.Screening.RoomId))
+                .ForMember(dest => dest.PurchaseDate, opt =>
+                {
+                    opt.PreCondition(src => src.PurchaseId != null);
+                    opt.MapFrom(src => src.Purchase.PurchaseDate);
+                });
 
             CreateMap<TicketPutDTO, Ticket>()
                 .ForMember(e => e.ScreeningId, opt => opt.PreCondition(dto => dto.ScreeningId != null))
