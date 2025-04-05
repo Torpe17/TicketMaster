@@ -13,6 +13,13 @@ namespace TicketMaster.Services.DTOs
         public string Username { get; set; }
         public string Email { get; set; }
         public IList<RoleDTO> Roles { get; set; }
+    }
+    public class UserWithAddressDTO
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public IList<RoleDTO> Roles { get; set; }
         public AddressGetDTO Address { get; set; }
     }
 
@@ -45,5 +52,17 @@ namespace TicketMaster.Services.DTOs
 
         [Required]
         public string Password { get; set; }
+    }
+    public class UserUpdateDTO
+    {
+        [Required]
+        [StringLength(50)]
+        public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        public IList<int> RoleIds { get; set; }
     }
 }

@@ -13,30 +13,48 @@ using System.Text;
 using System.Threading.Tasks;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
+using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services.DTOs;
 
 namespace TicketMaster.Services
 {
     public interface IUserService
     {
+        Task<List<UserDTO>> GetUsersAsync();
+        Task<UserDTO> GetUserByIdAsync(int id);
         Task<UserDTO> RegisterAsync(UserRegisterDTO UserDTO);
         Task<string> LoginAsync(UserLoginDTO UserDTO);
-        //Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDto UserDTO);
+        Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDTO UserDTO);
         //Task<UserDTO> UpdateAddressAsync(int userId, AddressDto addressDto);
         //Task<IList<RoleDto>> GetRolesAsync();
+        Task DeleteUser(int id);
     }
     public class UserService :IUserService
     {
         private readonly AppDbContext _context;
+        private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
-        public UserService(AppDbContext context, IMapper mapper, IConfiguration configuration)
+        public UserService(AppDbContext context, UnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
         {
             _context = context;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _configuration = configuration;
         }
+        public async Task<List<UserDTO>> GetUsersAsync()
+        {
+            var users = await _unitOfWork.UserRepository.GetAsync(includedProperties: ["Roles"]);
+            return _mapper.Map<List<UserDTO>>(users);
+        }
+        public async Task<UserDTO> GetUserByIdAsync(int id)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id, includedCollections: ["Roles"]);
+            if (user == null) throw new KeyNotFoundException("User not found");
+            return _mapper.Map<UserDTO>(user);
+        }
+
 
         public async Task<UserDTO> RegisterAsync(UserRegisterDTO UserDTO)
         {
@@ -123,56 +141,44 @@ namespace TicketMaster.Services
             return new ClaimsIdentity(claims, "Token");
         }
 
-        //public async Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDto UserDTO)
-        //{
-        //    var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
-        //    if (user == null)
-        //    {
-        //        throw new KeyNotFoundException("User not found.");
-        //    }
+        public async Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDTO UserUpdateDTO)
+        {
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
 
-        //    _mapper.Map(UserDTO, user);
+            _mapper.Map(UserUpdateDTO, user);
 
-        //    if (UserDTO.RoleIds != null && UserDTO.RoleIds.Any())
-        //    {
-        //        user.Roles.Clear();
+            if (UserUpdateDTO.RoleIds != null && UserUpdateDTO.RoleIds.Any())
+            {
+                user.Roles.Clear();
 
-        //        foreach (var roleId in UserDTO.RoleIds)
-        //        {
-        //            var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
-        //            if (existingRole != null)
-        //            {
-        //                user.Roles.Add(existingRole);
-        //            }
-        //        }
-        //    }
+                foreach (var roleId in UserUpdateDTO.RoleIds)
+                {
+                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
+                    if (existingRole != null)
+                    {
+                        user.Roles.Add(existingRole);
+                    }
+                }
+            }
 
-        //    _context.Users.Update(user);
-        //    await _context.SaveChangesAsync();
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
 
-        //    return _mapper.Map<UserDTO>(user);
-        //}
+            return _mapper.Map<UserDTO>(user);
+        }
 
-        //public async Task<UserDTO> UpdateAddressAsync(int userId, AddressDto addressDto)
-        //{
-        //    var user = await _context.Users.Include(u => u.Address).FirstOrDefaultAsync(u => u.Id == userId);
-        //    if (user == null)
-        //    {
-        //        throw new KeyNotFoundException("User not found.");
-        //    }
-
-        //    var address = _mapper.Map<Address>(addressDto);
-        //    user.Address.Add(address);
-
-        //    await _context.SaveChangesAsync();
-
-        //    return _mapper.Map<UserDTO>(user);
-        //}
-
-        //public async Task<IList<RoleDto>> GetRolesAsync()
-        //{
-        //    var roles = await _context.Roles.ToListAsync();
-        //    return _mapper.Map<IList<RoleDto>>(roles);
-        //}
+        public async Task DeleteUser(int id)
+        {
+            if ((await _unitOfWork.UserRepository.GetByIdAsync(id)) == null)
+            {
+                throw new KeyNotFoundException("User not found");
+            }
+            await _unitOfWork.UserRepository.DeleteByIdAsync(id);
+            await _unitOfWork.SaveAsync();
+        }
     }
 }
