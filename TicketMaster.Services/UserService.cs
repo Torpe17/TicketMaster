@@ -185,7 +185,6 @@ namespace TicketMaster.Services
         {
             await _unitOfWork.UserRepository.GetByIdAsync(userId, includedCollections: ["Roles"]);
             var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedReferences: ["Address"]);
-            //var user = await _context.Users.Include(u => u.Address).Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
             {
                 throw new KeyNotFoundException("User not found.");

@@ -1,12 +1,5 @@
 ﻿namespace TicketMaster.DataContext.Models
 {
-    //public enum Rank
-    //{
-    //    NotRegistered,
-    //    Registered,
-    //    Cashier,
-    //    Admin
-    //}
     public class User
     {
         public int Id { get; set; }
