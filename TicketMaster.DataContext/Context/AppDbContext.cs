@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Models;
 using System;
 using System.Collections.Generic;
@@ -19,6 +19,7 @@ namespace TicketMaster.DataContext.Context
         public DbSet<User> Users { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<RoomType> RoomTypes { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
         { }

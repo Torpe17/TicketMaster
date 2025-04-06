@@ -16,6 +16,7 @@ public class UnitOfWork
         TicketRepository = new GenericRepository<Ticket>(context);
         UserRepository = new GenericRepository<User>(context);
         AddressRepository = new GenericRepository<Address>(context);
+        RoomTypeRepository = new GenericRepository<RoomType>(context);
     }
     private AppDbContext _context;
     public GenericRepository<Film> FilmRepository { get; set; }
@@ -25,6 +26,7 @@ public class UnitOfWork
     public GenericRepository<Ticket> TicketRepository { get; set; }
     public GenericRepository<User> UserRepository { get; set; }
     public GenericRepository<Address> AddressRepository { get; set; }
+    public GenericRepository<RoomType> RoomTypeRepository { get; set; }
     public void Dispose() { _context.Dispose(); }
     public void Save() { _context.SaveChanges(); }
     public async Task SaveAsync() { await _context.SaveChangesAsync(); }
