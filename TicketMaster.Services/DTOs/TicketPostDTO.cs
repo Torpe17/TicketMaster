@@ -1,14 +1,17 @@
-﻿namespace TicketMaster.DataContext.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TicketMaster.Services.DTOs
 {
-    public class Ticket
+    public class TicketPostDTO
     {
-        public int Id { get; set; }
         public int ScreeningId { get; set; }
         public int? PurchaseId { get; set; }
         public int SeatRow { get; set; }
         public int SeatColumn { get; set; }
         public double Price { get; set; }
-        public Purchase? Purchase { get; set; }
-        public Screening Screening { get; set; }
     }
 }
