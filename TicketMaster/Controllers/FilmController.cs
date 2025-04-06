@@ -40,8 +40,8 @@ namespace TicketMaster.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<FilmGetDTO>> GetFilm(int id)
         {
-            var film = await _unitOfWork.FilmRepository.GetByIdAsync(id,
-                includedCollections: ["Screenings"]
+            var film = await _unitOfWork.FilmRepository.GetByIdAsync(id/*,
+                includedCollections: ["Screenings"]*/
                 );
 
             if (film == null)
@@ -57,20 +57,17 @@ namespace TicketMaster.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFilm(int id, FilmPutDTO film)
         {
-            Film? f = await _unitOfWork.FilmRepository.GetByIdAsync(id);
             if (film == null)
-            {
                 return BadRequest("Film was empty");
-            }
-
+            
+            Film? f = await _unitOfWork.FilmRepository.GetByIdAsync(id);
+            if (f == null)
+                return BadRequest("Film not found");
+            
             if (film.Length != null && film.Length <= 0)
-            {
                 return BadRequest("Length can't be negative or 0 length");
-            }
             if ((film.AgeRating < 0 || film.AgeRating > 18) && film.SetAgeRating)
-            {
                 return BadRequest("Age rating must be between 0 and 18 including 0 and 18");
-            }
 
             _mapper.Map(film, f);
 
@@ -89,8 +86,7 @@ namespace TicketMaster.Controllers
                     throw;
                 }
             }
-            return Content("Film updated");
-            return Ok();
+            return Ok("Film updated");
         }
 
         // POST: api/Film
@@ -99,29 +95,20 @@ namespace TicketMaster.Controllers
         public async Task<ActionResult<FilmPostDTO>> PostFilm(FilmPostDTO film)
         {
             if(film == null)
-            {
                 return BadRequest("Empty film");
-            }
             if(film.Length <= 0)
-            {
                 return BadRequest("Length can't be negative or 0 length");
-            }
             if (film.AgeRating < 0 || film.AgeRating > 18)
-            {
                 return BadRequest("Age rating must be between 0 and 18 including 0 and 18");
-            }
             if (film.Title == null || film.Director == null || film.Genre == null || film.Description == null)
-            {
                 return BadRequest("Title, Director, Genre and Description must be filled");
-            }
 
             Film newFilm = _mapper.Map<Film>(film);
 
             await _unitOfWork.FilmRepository.InsertAsync(newFilm);
             await _unitOfWork.SaveAsync();
 
-            return Content("Film created"); 
-            return Created();
+            return Ok("Film created"); 
         }
 
         // DELETE: api/Film/5
@@ -131,8 +118,7 @@ namespace TicketMaster.Controllers
             await _unitOfWork.FilmRepository.DeleteByIdAsync(id);
             await _unitOfWork.SaveAsync();
             
-            return Content("Film deleted");
-            return NoContent();
+            return Ok("Film deleted");
         }
 
         private bool FilmExists(int id)
