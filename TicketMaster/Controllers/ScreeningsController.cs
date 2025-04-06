@@ -42,9 +42,7 @@ namespace TicketMaster.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ScreeningGetDTO>> GetScreening(int id)
         {
-            var screening = await unitOfWork.ScreeningRepository.GetByIdAsync(
-                 id
-                 );
+            var screening = await unitOfWork.ScreeningRepository.GetByIdAsync(id);
 
             if (screening == null)
             {
@@ -71,6 +69,21 @@ namespace TicketMaster.Controllers
 
             mapper.Map(dto, screening);
 
+            Film? film = await unitOfWork.FilmRepository.GetByIdAsync(screening.FilmId);
+            if (film == null)
+            {
+                return BadRequest("The film does not exist");
+            }
+            Room? room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
+            if (room == null)
+            {
+                return BadRequest("Room does not exist");
+            }
+            if (screening.Date < DateTime.Now)
+            {
+                return BadRequest("Screening cannot be in the past");
+            }
+
             try
             {
                 await unitOfWork.SaveAsync();
@@ -95,6 +108,21 @@ namespace TicketMaster.Controllers
         [HttpPost]
         public async Task<ActionResult> PostScreening(ScreeningPostDTO screening)
         {
+            Film? film = await unitOfWork.FilmRepository.GetByIdAsync(screening.FilmId);
+            if (film == null)
+            {
+                return BadRequest("The film does not exist");
+            }
+            Room? room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
+            if (room == null)
+            {
+                return BadRequest("Room does not exist");
+            }
+            if (screening.Date < DateTime.Now)
+            {
+                return BadRequest("Screening cannot be in the past");
+            }
+
             Screening newScreening = mapper.Map<Screening>(screening);
 
             await unitOfWork.ScreeningRepository.InsertAsync(newScreening);
