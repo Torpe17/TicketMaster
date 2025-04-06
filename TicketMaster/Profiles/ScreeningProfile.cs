@@ -22,9 +22,7 @@ namespace TicketMaster.Services.Profiles
             CreateMap<ScreeningPutDTO, Screening>()
                 .ForMember(s => s.FilmId, opt => opt.PreCondition(dto => dto.FilmId != null))
                 .ForMember(e => e.RoomId, opt => opt.PreCondition(dto => dto.RoomId != null))
-                .ForMember(e => e.Date, opt => opt.PreCondition(dto => dto.Date != null))
-                .ForMember(e => e.Film, opt => opt.PreCondition(dto => dto.Film != null))
-                .ForMember(e => e.Tickets, opt => opt.PreCondition(dto => dto.Tickets != null));
+                .ForMember(e => e.Date, opt => opt.PreCondition(dto => dto.Date != null));
 
             CreateMap<ScreeningPostDTO, Screening>();
         }
