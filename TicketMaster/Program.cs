@@ -28,9 +28,9 @@ namespace TicketMaster
                 // temporarily until launchSettings is solved
                 // currently it is fetched from appsettings
                 // the connection string alias needs to be changed according to dev
-                //var conString = builder.Configuration.GetConnectionString("TicketMasterDatabase") ??
-                                //throw new InvalidOperationException("Connection string 'BarnusDatabase' not found.");
-                options.UseSqlServer("Data Source=sql.bsite.net\\MSSQL2016;Initial Catalog=theradiosaiyan_ticketmaster;Persist Security Info=True;User ID=theradiosaiyan_ticketmaster;Password=Gohan2003;TrustServerCertificate=True");
+                var conString = builder.Configuration.GetConnectionString("Mark") ??
+                                throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
+                options.UseSqlServer(conString);
                 //options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
                 //launchsettings.json -> environmentVariables -> ConnectionStrings:UserDatabase
             });
