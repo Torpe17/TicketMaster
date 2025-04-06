@@ -42,10 +42,7 @@ namespace TicketMaster.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TicketGetDTO>> GetTicket(int id)
         {
-            var ticket = await unitOfWork.TicketRepository.GetByIdAsync(
-                id//,
-                //includedReferences: ["Purchase", "Screening"]
-                );
+            var ticket = await unitOfWork.TicketRepository.GetByIdAsync(id);
 
             if (ticket == null)
             {
@@ -71,6 +68,19 @@ namespace TicketMaster.Controllers
             }
 
             mapper.Map(dto, ticket);
+            Screening? screening = await unitOfWork.ScreeningRepository.GetByIdAsync(@ticket.ScreeningId);
+            if (screening == null)
+            {
+                return BadRequest("Screening does not exist");
+            }
+            else
+            {
+                Room room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
+                if (@ticket.SeatRow > room.MaxSeatRow || @ticket.SeatRow < 0 || ticket.SeatColumn > room.MaxSeatColumn || ticket.SeatColumn < 0)
+                {
+                    return BadRequest("Incorrect Seat Assignment");
+                }
+            }
 
             try
             {
@@ -102,6 +112,20 @@ namespace TicketMaster.Controllers
                 if (purchase == null)
                 {
                     return BadRequest("Purchase does not exist");
+                }
+            }
+
+            Screening? screening = await unitOfWork.ScreeningRepository.GetByIdAsync(@ticket.ScreeningId);
+            if (screening == null) 
+            {
+                return BadRequest("Screening does not exist");
+            }
+            else
+            {
+                Room room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
+                if (@ticket.SeatRow > room.MaxSeatRow || @ticket.SeatRow < 0 || ticket.SeatColumn > room.MaxSeatColumn || ticket.SeatColumn < 0)
+                {
+                    return BadRequest("Incorrect Seat Assignment");
                 }
             }
 
