@@ -89,6 +89,34 @@ namespace TicketMaster.Controllers
             return Ok("Film updated");
         }
 
+        [HttpGet("/on/{date}")]
+        public async Task<ActionResult<IEnumerable<FilmGetDTO>>> GetFilmsByDate(string date)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            if (films == null)
+            {
+                return NotFound("Films not found");
+            }
+            DateTime dateTime = DateTime.Parse(date);
+            var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date == dateTime)).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(films);
+        }
+
+        [HttpGet("/after/{date}")]
+        public async Task<ActionResult<IEnumerable<FilmGetDTO>>> GetFilmsAfterDate(string date)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            if (films == null)
+            {
+                return NotFound("Films not found");
+            }
+            DateTime dateTime = DateTime.Parse(date);
+            var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date >= dateTime)).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(films);
+        }
+
+
+
         // POST: api/Film
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
