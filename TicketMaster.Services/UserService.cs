@@ -16,6 +16,7 @@ using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.UserDTOs;
 
 namespace TicketMaster.Services
 {
@@ -59,6 +60,15 @@ namespace TicketMaster.Services
 
         public async Task<UserDTO> RegisterAsync(UserRegisterDTO UserDTO)
         {
+            User? u = await _context.Users.FirstOrDefaultAsync(x => x.Name == UserDTO.Name || x.Email == UserDTO.Email);
+
+            if (u != null)
+            {
+                string message = "There is already a User with this ";
+                if (u.Email == UserDTO.Email) throw new ArgumentException(message + "Email");
+                if (u.Name == UserDTO.Name) throw new ArgumentException(message + "Username");
+            }
+
             var user = _mapper.Map<User>(UserDTO);
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(UserDTO.Password);
             user.Roles = new List<Role>();
