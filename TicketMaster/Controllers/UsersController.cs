@@ -25,11 +25,13 @@ namespace TicketMaster.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IUserService _userService;
+        private readonly IAddressService _addressService;
 
-        public UsersController(AppDbContext context, IUserService userService)
+        public UsersController(AppDbContext context, IUserService userService, IAddressService addressService)
         {
             _context = context;
             _userService = userService;
+            _addressService = addressService;
         }
 
         // GET: api/Users
@@ -93,21 +95,60 @@ namespace TicketMaster.Controllers
             catch (Exception e) { return BadRequest(e.Message); }
         }
 
-        [HttpPut("update-address")]
+
+        [HttpGet("address")]
+        public async Task<ActionResult<AddressGetDTO>> GetAddress()
+        {
+            try
+            {
+                var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                var result = await _addressService.GetAddressByUserIdAsync(userId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (SqlException e) { return BadRequest(e.InnerException); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
+        [HttpPost("address")]
+        public async Task<IActionResult> CreateAddress([FromBody] AddressPostDTO addressDto)
+        {
+            try
+            {
+                var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                var result = await _addressService.CreateAddressAsync(userId, addressDto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (SqlException e) { return BadRequest(e.InnerException.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
+
+        [HttpPut("address")]
         public async Task<IActionResult> UpdateAddress([FromBody] AddressPutDTO addressDto)
         {
             try
             {
                 var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
-                var result = await _userService.UpdateAddressAsync(userId, addressDto);
+                var result = await _addressService.UpdateAddressAsync(userId, addressDto);
                 return Ok(result);
             }
             catch(SqlException e) { return BadRequest(e.InnerException); }
-            catch(Exception e)
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
+        [HttpDelete("address")]
+        public async Task<IActionResult> DeleteAddress()
+        {
+            try
             {
-                return BadRequest(e.Message);
+                var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                await _addressService.DeleteAddressByUserIdAsync(userId);
+                return Ok();
             }
-            
+            catch (SqlException e) { return BadRequest(e.InnerException); }
+            catch (Exception e) { return BadRequest(e.Message); }
         }
 
         // DELETE: api/Users/5

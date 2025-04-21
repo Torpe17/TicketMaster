@@ -41,7 +41,7 @@ namespace TicketMaster.Controllers
         }
 
         // GET: api/Addresses
-        [HttpGet]
+        [HttpGet("{id}")]
         public async Task<ActionResult<AddressGetDTO>> GetAddress(int id)
         {
             var address = await _unitOfWork.AddressRepository.GetByIdAsync(id, includedReferences: ["User"]);

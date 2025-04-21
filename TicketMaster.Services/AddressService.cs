@@ -17,9 +17,9 @@ namespace TicketMaster.Services
     {
         Task<AddressGetDTO> GetAddressByUserIdAsync(int userId);
         Task<AddressGetDTO> CreateAddressAsync(int userId, AddressPostDTO dto);
-        Task<AddressGetDTO> UpdateAddressByIdAsync(int userId, int addressId, AddressPutDTO UserDTO);
-        Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
-        Task DeleteAddressAsync(int id);
+        Task<AddressGetDTO> UpdateAddressByUserIdAsync(int userId, AddressPutDTO dto);
+        Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO dto);
+        Task DeleteAddressByUserIdAsync(int userId);
     }
     public class AddressService : IAddressService
     {
@@ -47,6 +47,7 @@ namespace TicketMaster.Services
                 throw new ArgumentException($"Only one address is allowed for a user");
             }
             Address newAddress = _mapper.Map<Address>(dto);
+            newAddress.UserId = userId;
 
             await _unitOfWork.AddressRepository.InsertAsync(newAddress);
             await _unitOfWork.SaveAsync();
@@ -54,22 +55,43 @@ namespace TicketMaster.Services
             return _mapper.Map<AddressGetDTO>(newAddress);
         }
 
-        public async Task DeleteAddressAsync(int id)
+        public async Task DeleteAddressByUserIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
         public async Task<AddressGetDTO> GetAddressByUserIdAsync(int userId)
         {
-            throw new NotImplementedException();
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedReferences: ["Address"]);
+
+            if (user == null) throw new KeyNotFoundException("This user doesn't exists");
+
+            if (user.Address == null) throw new KeyNotFoundException("This user doesn't have an address");
+
+            return _mapper.Map<AddressGetDTO>(user.Address);
         }
 
-        public async Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto)
+        public async Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO dto)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.UserRepository.GetByIdAsync(userId, includedCollections: ["Roles"]);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedReferences: ["Address"]);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            if (user.Address == null)
+            {
+                throw new InvalidDataException("User doesn't have address yet.");
+            }
+            _mapper.Map(dto, user.Address);
+
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<AddressGetDTO>(user.Address);
         }
 
-        public async Task<AddressGetDTO> UpdateAddressByIdAsync(int userId, int addressId, AddressPutDTO UserDTO)
+        public async Task<AddressGetDTO> UpdateAddressByUserIdAsync(int userId, AddressPutDTO dto)
         {
             throw new NotImplementedException();
         }
