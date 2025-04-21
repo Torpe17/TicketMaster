@@ -160,6 +160,11 @@ namespace TicketMaster.Services
                 throw new KeyNotFoundException("User not found.");
             }
 
+            if(user.Email != UserUpdateDTO.Email && await _context.Users.AnyAsync(u => u.Email == UserUpdateDTO.Email))
+            {
+                throw new ArgumentException("There is already another User with this email address");
+            }
+
             _mapper.Map(UserUpdateDTO, user);
 
             if (UserUpdateDTO.RoleIds != null && UserUpdateDTO.RoleIds.Any())

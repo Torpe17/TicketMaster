@@ -17,6 +17,6 @@ namespace TicketMaster.Services.DTOs.UserDTOs
         [EmailAddress]
         public string Email { get; set; }
 
-        public IList<int> RoleIds { get; set; }
+        public IList<int>? RoleIds { get; set; }
     }
 }
