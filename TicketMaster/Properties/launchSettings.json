@@ -8,7 +8,7 @@
       "applicationUrl": "http://localhost:5149",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings:UserDatabase": "Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;"
+        "ConnectionStrings:UserDatabase": "Data Source=sql.bsite.net\\MSSQL2016;Initial Catalog=theradiosaiyan_ticketmaster;Persist Security Info=True;User ID=theradiosaiyan_ticketmaster;Password=Gohan2003;TrustServerCertificate=True"
       }
     },
     "https": {
@@ -18,7 +18,7 @@
       "applicationUrl": "https://localhost:7293;http://localhost:5149",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings:UserDatabase": "Server=localhost\\SQLEXPRESS;Database=TicketMaster;Trusted_Connection=True;TrustServerCertificate=True;"
+        "ConnectionStrings:UserDatabase": "Data Source=sql.bsite.net\\MSSQL2016;Initial Catalog=theradiosaiyan_ticketmaster;Persist Security Info=True;User ID=theradiosaiyan_ticketmaster;Password=Gohan2003;TrustServerCertificate=True"
       }
     }
   }

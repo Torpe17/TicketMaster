@@ -8,6 +8,12 @@ DROP TABLE IF EXISTS Rooms;
 DROP TABLE IF EXISTS Films;
 */
 
+----!!!!Run twice
+--Admin Email: admin@admin.com
+--Admin password: admin123
+--Cashier email: cash@ier.com
+--Cashier password: cashier
+
 DELETE FROM Tickets;
 DELETE FROM Purchases;
 DELETE FROM Addresses;
@@ -15,6 +21,9 @@ DELETE FROM Screenings;
 DELETE FROM Users;
 DELETE FROM Films;
 DELETE FROM Rooms;
+DELETE FROM Roles;
+DELETE FROM RoleUser;
+DELETE FROM RoomTypes;
 
 DBCC CHECKIDENT ('Tickets', RESEED, 0);
 DBCC CHECKIDENT ('Purchases', RESEED, 0);
@@ -23,6 +32,8 @@ DBCC CHECKIDENT ('Screenings', RESEED, 0);
 DBCC CHECKIDENT ('Users', RESEED, 0);
 DBCC CHECKIDENT ('Films', RESEED, 0);
 DBCC CHECKIDENT ('Rooms', RESEED, 0);
+DBCC CHECKIDENT ('RoomTypes', RESEED, 0);
+DBCC CHECKIDENT ('Roles', RESEED, 0);
 
 INSERT INTO Films (Title, Director, Genre, Length, Description, AgeRating) VALUES
 ('Dragon Ball Super: Broly', 'Tatsuya Nagamine', 'Animation', 100, 'The Saiyans are faced with a new threat in the form of Broly, a powerful Saiyan warrior.', 12),
@@ -239,17 +250,30 @@ INSERT INTO Films (Title, Director, Genre, Length, Description, AgeRating) VALUE
 ('Bottle Rocket', 'Wes Anderson', 'Comedy', 91, 'Three friends plan a series of heists, but things don''t go as planned.', 12),
 ('The French Dispatch', 'Wes Anderson', 'Comedy', 108, 'A collection of stories from the final issue of an American magazine in France.', 12);
 
-INSERT INTO Rooms (Name, MaxSeatRow, MaxSeatColumn) VALUES
-('Rooms 1', 10, 15),
-('Rooms 2', 12, 18),
-('Rooms 3', 8, 12),
-('Rooms 4', 10, 20),
-('Rooms 5', 15, 20),
-('Rooms 6', 10, 15),
-('Rooms 7', 12, 18),
-('Rooms 8', 8, 12),
-('Rooms 9', 10, 20),
-('Rooms 10', 15, 20);
+INSERT INTO RoomTypes (Name) VALUES
+('Cinema'),
+('Concert'),
+('VIP'),
+('Drive-IN');
+
+DECLARE @CinemaId INT, @ConcertId INT, @VIPId INT, @DriveInId INT;
+
+SELECT @CinemaId = Id FROM RoomTypes WHERE Name = 'Cinema';
+SELECT @ConcertId = Id FROM RoomTypes WHERE Name = 'Concert';
+SELECT @VIPId = Id FROM RoomTypes WHERE Name = 'VIP';
+SELECT @DriveInId = Id FROM RoomTypes WHERE Name = 'Drive-IN';
+
+INSERT INTO Rooms (Name, Description, RoomTypeId, MaxSeatRow, MaxSeatColumn, Capacity, DisabilityFriendly, ComfortLevel, ConstructedAt) VALUES
+('Screen 1', 'Main cinema hall with Dolby Atmos', @CinemaId, 15, 20, 300, 1, 4, '2015-06-10'),
+('Screen 2', 'Standard digital projection', @CinemaId, 12, 18, 216, 1, 3, '2015-06-10'),
+('Screen 3', '3D capable screen', @CinemaId, 10, 15, 150, 0, 3, '2017-03-15'),
+('Screen 4', 'Small intimate screening room', @CinemaId, 8, 12, 96, 1, 2, '2018-11-20'),
+('Screen 5', 'Premium large format screen', @CinemaId, 18, 25, 450, 1, 5, '2019-07-01'),
+('Screen 6', 'Retro cinema with classic decor', @CinemaId, 10, 16, 160, 0, 3, '2020-05-12'),
+('Main Hall', 'Large concert venue with excellent acoustics', @ConcertId, NULL, NULL, 600, 1, 4, '2016-02-28'),
+('Chamber Room', 'Smaller space for intimate performances', @ConcertId, NULL, NULL, 120, 1, 3, '2018-09-05'),
+('Diamond Lounge', 'Exclusive VIP experience with luxury seating', @VIPId, 5, 8, 40, 1, 5, '2019-12-15'),
+('Starlight Drive-In', 'Outdoor movie experience with FM sound', @DriveInId, NULL, NULL, 100, 1, 3, '2020-07-20');
 
 INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (1, 1, '2025-06-15 14:00:00'),
@@ -360,7 +384,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (24, 6, '2025-07-18 11:30:00'),
 (24, 8, '2025-08-20 14:00:00'),
 
-(25, 1, '2025-06-22 12:00:00'),
+(25, 10, '2025-06-22 12:00:00'),
 (25, 3, '2025-07-30 16:00:00'),
 (25, 5, '2025-08-10 20:00:00'),
 
@@ -373,7 +397,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (27, 3, '2025-06-18 20:00:00'),
 (27, 5, '2025-07-22 14:00:00'),
 
-(28, 2, '2025-06-08 11:00:00'),
+(28, 10, '2025-06-08 11:00:00'),
 (28, 4, '2025-07-10 13:00:00'),
 (28, 6, '2025-08-24 17:30:00'),
 (28, 8, '2025-06-30 10:00:00'),
@@ -393,7 +417,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 
 (32, 2, '2025-07-05 14:00:00'),
 (32, 4, '2025-08-15 18:00:00'),
-(32, 6, '2025-06-25 10:30:00'),
+(32, 10, '2025-06-25 10:30:00'),
 (32, 8, '2025-07-28 13:00:00'),
 
 (33, 1, '2025-08-12 16:00:00'),
@@ -412,7 +436,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (36, 2, '2025-08-01 15:00:00'),
 (36, 4, '2025-06-05 19:00:00'),
 (36, 6, '2025-07-18 11:30:00'),
-(36, 8, '2025-08-20 14:00:00'),
+(36, 10, '2025-08-20 14:00:00'),
 
 (37, 1, '2025-06-22 12:00:00'),
 (37, 3, '2025-07-30 16:00:00'),
@@ -443,7 +467,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 
 (43, 1, '2025-06-22 12:00:00'),
 (43, 3, '2025-07-30 16:00:00'),
-(43, 5, '2025-08-10 20:00:00'),
+(43, 9, '2025-08-10 20:00:00'),
 
 (44, 2, '2025-07-05 14:00:00'),
 (44, 4, '2025-08-15 18:00:00'),
@@ -474,7 +498,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 
 (50, 2, '2025-07-05 14:00:00'),
 (50, 4, '2025-08-15 18:00:00'),
-(50, 6, '2025-06-25 10:30:00'),
+(50, 9, '2025-06-25 10:30:00'),
 (50, 8, '2025-07-28 13:00:00'),
 
 (51, 1, '2025-08-12 16:00:00'),
@@ -546,7 +570,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 
 (66, 2, '2025-08-01 15:00:00'),
 (66, 4, '2025-06-05 19:00:00'),
-(66, 6, '2025-07-18 11:30:00'),
+(66, 9, '2025-07-18 11:30:00'),
 (66, 8, '2025-08-20 14:00:00'),
 
 (67, 1, '2025-06-22 12:00:00'),
@@ -565,42 +589,42 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 (70, 2, '2025-06-08 11:00:00'),
 (70, 4, '2025-07-10 13:00:00'),
 (70, 6, '2025-08-24 17:30:00'),
-(70, 8, '2025-06-30 10:00:00');
+(70, 9, '2025-06-30 10:00:00');
 
-INSERT INTO Users (Name, Email, Rank, BirthDate) VALUES
-('Kovács Ádám', 'kovacs.adam@example.com', 1, '1990-01-01'),
-('Nagy Eszter', 'nagy.eszter@example.com', 1, '1991-02-02'),
-('Tóth Balázs', 'toth.balazs@example.com', 1, '1992-03-03'),
-('Szabó Zsófia', 'szabo.zsofia@example.com', 1, '1993-04-04'),
-('Horváth Dávid', 'horvath.david@example.com', 1, '1994-05-05'),
-('Varga Réka', 'varga.reka@example.com', 1, '1995-06-06'),
-('Molnár Gábor', 'molnar.gabor@example.com', 1, '1996-07-07'),
-('Farkas Anna', 'farkas.anna@example.com', 1, '1997-08-08'),
-('Takács Péter', 'takacs.peter@example.com', 1, '1998-09-09'),
-('Kiss Judit', 'kiss.judit@example.com', 1, '1999-10-10'),
-('Papp László', 'papp.laszlo@example.com', 1, '1985-11-11'),
-('Balogh Éva', 'balogh.eva@example.com', 1, '1986-12-12'),
-('Simon András', 'simon.andras@example.com', 1, '1987-01-13'),
-('Rácz Katalin', 'racz.katalin@example.com', 1, '1988-02-14'),
-('Fekete Tamás', 'fekete.tamas@example.com', 1, '1989-03-15'),
-('Szűcs Márta', 'szucs.marta@example.com', 1, '1990-04-16'),
-('Lukács István', 'lukacs.istvan@example.com', 1, '1991-05-17'),
-('Mészáros Zoltán', 'meszaros.zoltan@example.com', 1, '1992-06-18'),
-('Király Edit', 'kiraly.edit@example.com', 1, '1993-07-19'),
-('Bakos Gergő', 'bakos.gergo@example.com', 1, '1994-08-20'),
-('Gál Csaba', 'gal.csaba@example.com', 1, '1995-09-21'),
-('Németh Krisztina', 'nemeth.krisztina@example.com', 1, '1985-11-11'),
-('Vincze Attila', 'vincze.attila@example.com', 1, '1986-12-12'),
-('Magyar Zsuzsanna', 'magyar.zsuzsanna@example.com', 1, '1987-01-13'),
-('Fehér Gyula', 'feher.gyula@example.com', 1, '1988-02-14'),
-('Szalai Ágnes', 'szalai.agnes@example.com', 1, '1989-03-15'),
-('Bíró Szabolcs', 'biro.szabolcs@example.com', 1, '1990-04-16'),
-('Katona Lilla', 'katona.lilla@example.com', 1, '1991-05-17'),
-('Sándor Roland', 'sandor.roland@example.com', 1, '1992-06-18'),
-('Fodor Bianka', 'fodor.bianka@example.com', 1, '1993-07-19'),
-('Anna Müller', 'anna.muller@example.com', 1, '1990-01-01'),
-('Ján Novák', 'jan.novak@example.com', 1, '1991-02-02'),
-('Maria Popescu', 'maria.popescu@example.com', 1, '1992-03-03');
+INSERT INTO Users (Name, Email, PasswordHash, AddressId, BirthDate) VALUES
+('Admin admin', 'admin@admin.com', '$2a$11$EeroP1p1rS.dvBoXZ7WcsOiCf9lZMOa05YCj6F8MSFmH0TPSze626', 1, '2003-04-08'),
+('TicketMaster Guardian', 'cash@eir.com', '$2a$11$JZ3Fy4kRWxOSkN1UEqRcx.yqWO3BEGkTvaUG1xct.Ay3fF5l2.FGy', 2, '2000-02-02'),
+('Tóth Balázs', 'toth.balazs@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 3, '1992-03-03'),
+('Szabó Zsófia', 'szabo.zsofia@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 4, '1993-04-04'),
+('Horváth Dávid', 'horvath.david@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 5, '1994-05-05'),
+('Varga Réka', 'varga.reka@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 6, '1995-06-06'),
+('Molnár Gábor', 'molnar.gabor@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 7, '1996-07-07'),
+('Farkas Anna', 'farkas.anna@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 8, '1997-08-08'),
+('Takács Péter', 'takacs.peter@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 9, '1998-09-09'),
+('Kiss Judit', 'kiss.judit@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 10, '1999-10-10'),
+('Papp László', 'papp.laszlo@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 11, '1985-11-11'),
+('Balogh Éva', 'balogh.eva@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 12, '1986-12-12'),
+('Simon András', 'simon.andras@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 13, '1987-01-13'),
+('Rácz Katalin', 'racz.katalin@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 14, '1988-02-14'),
+('Fekete Tamás', 'fekete.tamas@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 15, '1989-03-15'),
+('Szűcs Márta', 'szucs.marta@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 16, '1990-04-16'),
+('Lukács István', 'lukacs.istvan@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 17, '1991-05-17'),
+('Mészáros Zoltán', 'meszaros.zoltan@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 18, '1992-06-18'),
+('Király Edit', 'kiraly.edit@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 19, '1993-07-19'),
+('Bakos Gergő', 'bakos.gergo@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 20, '1994-08-20'),
+('Gál Csaba', 'gal.csaba@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 21, '1995-09-21'),
+('Németh Krisztina', 'nemeth.krisztina@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 22, '2009-11-11'),
+('Vincze Attila', 'vincze.attila@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 23, '1986-12-12'),
+('Magyar Zsuzsanna', 'magyar.zsuzsanna@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 24, '1987-01-13'),
+('Fehér Gyula', 'feher.gyula@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 25, '1988-02-14'),
+('Szalai Ágnes', 'szalai.agnes@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 26, '1989-03-15'),
+('Bíró Szabolcs', 'biro.szabolcs@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 27, '1990-04-16'),
+('Katona Lilla', 'katona.lilla@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 28, '1991-05-17'),
+('Sándor Roland', 'sandor.roland@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 29, '2003-06-18'),
+('Fodor Bianka', 'fodor.bianka@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 30, '2000-07-19'),
+('Anna Müller', 'anna.muller@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 31, '2015-01-01'),
+('Ján Novák', 'jan.novak@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 32, '2010-02-02'),
+('Maria Popescu', 'maria.popescu@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 33, '2002-03-03');
 
 INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
 ('Hungary', 'Budapest', 1011, 'Budapest', 'Kossuth Lajos utca', NULL, 10, 1),
@@ -637,147 +661,58 @@ INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumbe
 ('Slovakia', 'Bratislava', 81101, 'Bratislava', 'Hlavné námestie', 2, 7, 32),
 ('Romania', 'Bucharest', 010101, 'Bucharest', 'Calea Victoriei', NULL, 10, 33);
 
-INSERT INTO Users (Name, Email, Rank, BirthDate) VALUES
-('Kiss Áron', 'kiss.aron@example.com', 1, '1990-01-02'),
-('Németh Barbara', 'nemeth.barbara@example.com', 1, '1991-02-03'),
-('Szűcs Csaba', 'szucs.csaba@example.com', 1, '1992-03-04'),
-('Fekete Dóra', 'fekete.dora@example.com', 1, '1993-04-05'),
-('Balogh Erika', 'balogh.erika@example.com', 1, '1994-05-06'),
-('Varga Ferenc', 'varga.ferenc@example.com', 1, '1995-06-07'),
-('Molnár Gizella', 'molnar.gizella@example.com', 1, '1996-07-08'),
-('Takács Henrik', 'takacs.henrik@example.com', 1, '1997-08-09'),
-('Kovács Ilona', 'kovacs.ilona@example.com', 1, '1998-09-10'),
-('Papp János', 'papp.janos@example.com', 1, '1999-10-11'),
-('Tóth Katalin', 'toth.katalin@example.com', 1, '1985-11-12'),
-('Horváth László', 'horvath.laszlo@example.com', 1, '1986-12-13'),
-('Farkas Mária', 'farkas.maria@example.com', 1, '1987-01-14'),
-('Rácz Norbert', 'racz.norbert@example.com', 1, '1988-02-15'),
-('Simon Orsolya', 'simon.orsolya@example.com', 1, '1989-03-16'),
-('Szabó Péter', 'szabo.peter@example.com', 1, '1990-04-17'),
-('Lukács Renáta', 'lukacs.renata@example.com', 1, '1991-05-18'),
-('Mészáros Sándor', 'meszaros.sandor@example.com', 1, '1992-06-19'),
-('Király Tamás', 'kiraly.tamas@example.com', 1, '1993-07-20'),
-('Bakos Zoltán', 'bakos.zoltan@example.com', 1, '1994-08-21'),
-('Gál Zsuzsanna', 'gal.zsuzsanna@example.com', 1, '1995-09-22'),
-('Németh Ágnes', 'nemeth.agnes@example.com', 1, '1985-11-13'),
-('Vincze Béla', 'vincze.bela@example.com', 1, '1986-12-14'),
-('Magyar Cecília', 'magyar.cecilia@example.com', 1, '1987-01-15'),
-('Fehér Dénes', 'feher.denes@example.com', 1, '1988-02-16'),
-('Szalai Elemér', 'szalai.elemer@example.com', 1, '1989-03-17'),
-('Bíró Ferenc', 'biro.ferenc@example.com', 1, '1990-04-18'),
-('Katona Gábor', 'katona.gabor@example.com', 1, '1991-05-19'),
-('Sándor Henrietta', 'sandor.henrietta@example.com', 1, '1992-06-20'),
-('Fodor István', 'fodor.istvan@example.com', 1, '1993-07-21'),
-('Sophie Müller', 'sophie.muller@example.com', 1, '1990-01-03'),
-('Peter Novák', 'peter.novak@example.com', 1, '1991-02-04'),
-('Elena Popescu', 'elena.popescu@example.com', 1, '1992-03-05');
+INSERT INTO Roles (Name) VALUES
+('Admin'),
+('Cashier'),
+('Customer');
 
-INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
-('Hungary', 'Budapest', 1034, 'Budapest', 'Árpád út', NULL, 10, 34),
-('Hungary', 'Budapest', 1035, 'Budapest', 'Bécsi út', 2, 5, 35),
-('Hungary', 'Budapest', 1036, 'Budapest', 'Csillaghegyi út', NULL, 20, 36),
-('Hungary', 'Budapest', 1037, 'Budapest', 'Dunakeszi út', 3, 15, 37),
-('Hungary', 'Budapest', 1038, 'Budapest', 'Fő tér', NULL, 8, 38),
-('Hungary', 'Budapest', 1039, 'Budapest', 'Göncöl út', 4, 12, 39),
-('Hungary', 'Budapest', 1041, 'Budapest', 'Hegyalja út', NULL, 7, 40),
-('Hungary', 'Budapest', 1042, 'Budapest', 'Ipoly utca', 5, 9, 41),
-('Hungary', 'Budapest', 1043, 'Budapest', 'Jókai utca', NULL, 11, 42),
-('Hungary', 'Budapest', 1044, 'Budapest', 'Károly körút', 6, 14, 43),
-('Hungary', 'Budapest', 1045, 'Budapest', 'Lajos utca', NULL, 13, 44),
-('Hungary', 'Budapest', 1046, 'Budapest', 'Márton utca', 7, 16, 45),
-('Hungary', 'Budapest', 1047, 'Budapest', 'Nádor utca', NULL, 18, 46),
-('Hungary', 'Budapest', 1048, 'Budapest', 'Óbudai tér', 8, 19, 47),
-('Hungary', 'Budapest', 1051, 'Budapest', 'Péterfy utca', NULL, 21, 48),
-('Hungary', 'Budapest', 1052, 'Budapest', 'Rákóczi út', 9, 22, 49),
-('Hungary', 'Budapest', 1053, 'Budapest', 'Szent István körút', NULL, 23, 50),
-('Hungary', 'Budapest', 1054, 'Budapest', 'Teréz körút', 10, 24, 51),
-('Hungary', 'Budapest', 1055, 'Budapest', 'Újpesti út', NULL, 25, 52),
-('Hungary', 'Budapest', 1056, 'Budapest', 'Váci út', 11, 26, 53),
-('Hungary', 'Budapest', 1057, 'Budapest', 'Wesselényi utca', NULL, 27, 54),
-('Hungary', 'Pest', 2001, 'Szentendre', 'Fő utca', NULL, 3, 55),
-('Hungary', 'Győr-Moson-Sopron', 9022, 'Győr', 'Baross út', 2, 7, 56),
-('Hungary', 'Bács-Kiskun', 6001, 'Kecskemét', 'Kossuth utca', NULL, 10, 57),
-('Hungary', 'Csongrád-Csanád', 6721, 'Szeged', 'Dugonics utca', 3, 5, 58),
-('Hungary', 'Heves', 3301, 'Eger', 'Dobó utca', NULL, 8, 59),
-('Hungary', 'Veszprém', 8201, 'Veszprém', 'Óvári út', 4, 12, 60),
-('Hungary', 'Baranya', 7622, 'Pécs', 'Széchenyi utca', NULL, 6, 61),
-('Hungary', 'Hajdú-Bihar', 4026, 'Debrecen', 'Piac utca', 5, 9, 62),
-('Hungary', 'Jász-Nagykun-Szolnok', 5001, 'Szolnok', 'Kossuth út', NULL, 11, 63),
-('Austria', 'Vienna', 1011, 'Vienna', 'Graben', NULL, 5, 64),
-('Slovakia', 'Bratislava', 81102, 'Bratislava', 'Michalská ulica', 2, 7, 65),
-('Romania', 'Bucharest', 010102, 'Bucharest', 'Lipscani', NULL, 10, 66);
+DECLARE @AdminId INT, @CashierId INT, @CustomerId INT;
 
-INSERT INTO Users (Name, Email, Rank, BirthDate) VALUES
-('Kiss Áron', 'kiss.aron@example.com', 1, '2005-03-12'),
-('Németh Barbara', 'nemeth.barbara@example.com', 1, '2008-07-25'),
-('Szűcs Csaba', 'szucs.csaba@example.com', 1, '2003-11-18'),
-('Fekete Dóra', 'fekete.dora@example.com', 1, '2010-02-09'),
-('Balogh Erika', 'balogh.erika@example.com', 1, '2006-09-30'),
-('Varga Ferenc', 'varga.ferenc@example.com', 1, '2001-05-14'),
-('Molnár Gizella', 'molnar.gizella@example.com', 1, '2012-12-03'),
-('Takács Henrik', 'takacs.henrik@example.com', 1, '2004-08-22'),
-('Kovács Ilona', 'kovacs.ilona@example.com', 1, '2009-04-17'),
-('Papp János', 'papp.janos@example.com', 1, '2007-10-28'),
-('Tóth Katalin', 'toth.katalin@example.com', 1, '2002-06-19'),
-('Horváth László', 'horvath.laszlo@example.com', 1, '2011-01-07'),
-('Farkas Mária', 'farkas.maria@example.com', 1, '2000-07-23'),
-('Rácz Norbert', 'racz.norbert@example.com', 1, '2013-03-15'),
-('Simon Orsolya', 'simon.orsolya@example.com', 1, '2005-09-08'),
-('Szabó Péter', 'szabo.peter@example.com', 1, '2014-11-29'),
-('Lukács Renáta', 'lukacs.renata@example.com', 1, '2008-02-14'),
-('Mészáros Sándor', 'meszaros.sandor@example.com', 1, '2003-04-26'),
-('Király Tamás', 'kiraly.tamas@example.com', 1, '2010-08-11'),
-('Bakos Zoltán', 'bakos.zoltan@example.com', 1, '2006-12-05'),
-('Gál Zsuzsanna', 'gal.zsuzsanna@example.com', 1, '2001-10-20'),
-('Németh Ágnes', 'nemeth.agnes@example.com', 1, '2015-05-02'),
-('Vincze Béla', 'vincze.bela@example.com', 1, '2004-01-31'),
-('Magyar Cecília', 'magyar.cecilia@example.com', 1, '2009-07-16'),
-('Fehér Dénes', 'feher.denes@example.com', 1, '2002-03-27'),
-('Szalai Elemér', 'szalai.elemer@example.com', 1, '2012-09-10'),
-('Bíró Ferenc', 'biro.ferenc@example.com', 1, '2007-06-21'),
-('Katona Gábor', 'katona.gabor@example.com', 1, '2011-04-04'),
-('Sándor Henrietta', 'sandor.henrietta@example.com', 1, '2000-12-18'),
-('Fodor István', 'fodor.istvan@example.com', 1, '2013-08-07');
+SELECT @AdminId = Id FROM Roles WHERE Name = 'Admin';
+SELECT @CashierId = Id FROM Roles WHERE Name = 'Cashier';
+SELECT @CustomerId = Id FROM Roles WHERE Name = 'Customer';
 
-INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
-('Hungary', 'Budapest', 1034, 'Budapest', 'Árpád út', NULL, 10, 67),
-('Hungary', 'Budapest', 1035, 'Budapest', 'Bécsi út', 2, 5, 68),
-('Hungary', 'Budapest', 1036, 'Budapest', 'Csillaghegyi út', NULL, 20, 69),
-('Hungary', 'Budapest', 1037, 'Budapest', 'Dunakeszi út', 3, 15, 70),
-('Hungary', 'Budapest', 1038, 'Budapest', 'Fő tér', NULL, 8, 71),
-('Hungary', 'Budapest', 1039, 'Budapest', 'Göncöl út', 4, 12, 72),
-('Hungary', 'Budapest', 1041, 'Budapest', 'Hegyalja út', NULL, 7, 73),
-('Hungary', 'Budapest', 1042, 'Budapest', 'Ipoly utca', 5, 9, 74),
-('Hungary', 'Budapest', 1043, 'Budapest', 'Jókai utca', NULL, 11, 75),
-('Hungary', 'Budapest', 1044, 'Budapest', 'Károly körút', 6, 14, 76),
-('Hungary', 'Budapest', 1045, 'Budapest', 'Lajos utca', NULL, 13, 77),
-('Hungary', 'Budapest', 1046, 'Budapest', 'Márton utca', 7, 16, 78),
-('Hungary', 'Budapest', 1047, 'Budapest', 'Nádor utca', NULL, 18, 79),
-('Hungary', 'Budapest', 1048, 'Budapest', 'Óbudai tér', 8, 19, 80),
-('Hungary', 'Budapest', 1051, 'Budapest', 'Péterfy utca', NULL, 21, 81),
-('Hungary', 'Budapest', 1052, 'Budapest', 'Rákóczi út', 9, 22, 82),
-('Hungary', 'Budapest', 1053, 'Budapest', 'Szent István körút', NULL, 23, 83),
-('Hungary', 'Budapest', 1054, 'Budapest', 'Teréz körút', 10, 24, 84),
-('Hungary', 'Budapest', 1055, 'Budapest', 'Újpesti út', NULL, 25, 85),
-('Hungary', 'Budapest', 1056, 'Budapest', 'Váci út', 11, 26, 86),
-('Hungary', 'Budapest', 1057, 'Budapest', 'Wesselényi utca', NULL, 27, 87),
-('Hungary', 'Pest', 2001, 'Szentendre', 'Fő utca', NULL, 3, 88),
-('Hungary', 'Győr-Moson-Sopron', 9022, 'Győr', 'Baross út', 2, 7, 89),
-('Hungary', 'Bács-Kiskun', 6001, 'Kecskemét', 'Kossuth utca', NULL, 10, 90),
-('Hungary', 'Csongrád-Csanád', 6721, 'Szeged', 'Dugonics utca', 3, 5, 91),
-('Hungary', 'Heves', 3301, 'Eger', 'Dobó utca', NULL, 8, 92),
-('Hungary', 'Veszprém', 8201, 'Veszprém', 'Óvári út', 4, 12, 93),
-('Hungary', 'Baranya', 7622, 'Pécs', 'Széchenyi utca', NULL, 6, 94),
-('Hungary', 'Hajdú-Bihar', 4026, 'Debrecen', 'Piac utca', 5, 9, 95),
-('Hungary', 'Jász-Nagykun-Szolnok', 5001, 'Szolnok', 'Kossuth út', NULL, 11, 96);
-
+INSERT INTO RoleUser (UsersId, RolesId) VALUES
+(1, @AdminId),
+(2, @CashierId),
+(3, @CustomerId),
+(4, @CustomerId),
+(5, @CustomerId),
+(6, @CustomerId),
+(7, @CustomerId),
+(8, @CustomerId),
+(9, @CustomerId),
+(10, @CustomerId),
+(11, @CustomerId),
+(12, @CustomerId),
+(13, @CustomerId),
+(14, @CustomerId),
+(15, @CustomerId),
+(16, @CustomerId),
+(17, @CustomerId),
+(18, @CustomerId),
+(19, @CustomerId),
+(20, @CustomerId),
+(21, @CustomerId),
+(22, @CustomerId),
+(23, @CustomerId),
+(24, @CustomerId),
+(25, @CustomerId),
+(26, @CustomerId),
+(27, @CustomerId),
+(28, @CustomerId),
+(29, @CustomerId),
+(30, @CustomerId),
+(31, @CustomerId),
+(32, @CustomerId),
+(33, @CustomerId);
 
 DECLARE @ScreeningId INT;
 DECLARE @RoomId INT;
 DECLARE @MaxSeatRow INT;
 DECLARE @MaxSeatColumn INT;
-DECLARE @SeatRow INT = 1;
-DECLARE @SeatColumn INT = 1;
+DECLARE @Capacity INT;
+DECLARE @SeatNumber INT = 1;
 DECLARE @Price DECIMAL(18, 2);
 DECLARE @AgeRating INT;
 
@@ -798,6 +733,7 @@ BEGIN
         @RoomId = s.RoomId, 
         @MaxSeatRow = r.MaxSeatRow, 
         @MaxSeatColumn = r.MaxSeatColumn,
+        @Capacity = r.Capacity,
         @AgeRating = f.AgeRating
     FROM Screenings s
     JOIN Rooms r ON s.RoomId = r.RoomId
@@ -814,49 +750,60 @@ BEGIN
             ELSE @PriceGreen 
         END;
 
-    SET @SeatRow = 1;
-    SET @SeatColumn = 1;
-
-    WHILE @SeatRow <= @MaxSeatRow
+    IF @MaxSeatRow IS NOT NULL AND @MaxSeatColumn IS NOT NULL
     BEGIN
-        WHILE @SeatColumn <= @MaxSeatColumn
+        DECLARE @SeatRow INT = 1;
+        DECLARE @SeatColumn INT = 1;
+
+        WHILE @SeatRow <= @MaxSeatRow
+        BEGIN
+            WHILE @SeatColumn <= @MaxSeatColumn
+            BEGIN
+                INSERT INTO Tickets (ScreeningId, SeatRow, SeatColumn, Price)
+                VALUES (@ScreeningId, @SeatRow, @SeatColumn, @Price);
+
+                SET @SeatColumn = @SeatColumn + 1;
+            END;
+
+            SET @SeatRow = @SeatRow + 1;
+            SET @SeatColumn = 1; 
+        END;
+    END
+    ELSE
+    BEGIN
+        WHILE @SeatNumber <= @Capacity
         BEGIN
             INSERT INTO Tickets (ScreeningId, SeatRow, SeatColumn, Price)
-            VALUES (@ScreeningId, @SeatRow, @SeatColumn, @Price);
+            VALUES (@ScreeningId, NULL, @SeatNumber, @Price);
 
-            SET @SeatColumn = @SeatColumn + 1;
+            SET @SeatNumber = @SeatNumber + 1;
         END;
-
-        SET @SeatRow = @SeatRow + 1;
-        SET @SeatColumn = 1; 
     END;
-
 
     SET @Counter = @Counter + 1;
 END;
 
-
-INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (1, '2025-06-15 14:00:00', 14.00);
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (3, '2025-06-15 14:00:00', 14.00);
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 1 AND SeatRow = 1 AND SeatColumn = 1;
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 1 AND SeatRow = 1 AND SeatColumn = 2;
 
 
-INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (2, '2025-07-22 18:30:00', 14.00);
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (4, '2025-07-22 18:30:00', 14.00);
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 2 AND SeatRow = 2 AND SeatColumn = 3;
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 2 AND SeatRow = 2 AND SeatColumn = 4;
 
 
-INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (3, '2025-08-10 12:00:00', 14.00);
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (5, '2025-08-10 12:00:00', 14.00);
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 3 AND SeatRow = 3 AND SeatColumn = 5;
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 3 AND SeatRow = 3 AND SeatColumn = 6;
 
 
-INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (4, '2025-06-20 16:00:00', 14.00);
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (6, '2025-06-20 16:00:00', 14.00);
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 4 AND SeatRow = 4 AND SeatColumn = 7;
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 4 AND SeatRow = 4 AND SeatColumn = 8;
 
 
-INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (5, '2025-07-05 20:00:00', 14.00);
+INSERT INTO Purchases (UserId, PurchaseDate, TotalPrice) VALUES (7, '2025-07-05 20:00:00', 14.00);
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 5 AND SeatRow = 5 AND SeatColumn = 9;
 UPDATE Tickets SET PurchaseId = SCOPE_IDENTITY() WHERE ScreeningId = 5 AND SeatRow = 5 AND SeatColumn = 10;
 
