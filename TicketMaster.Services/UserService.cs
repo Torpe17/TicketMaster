@@ -205,7 +205,7 @@ namespace TicketMaster.Services
             {
                 throw new KeyNotFoundException("User not found.");
             }
-            dto.UserId = user.Id;
+            //userId = user.Id;
 
             if (user.Address == null) 
             {

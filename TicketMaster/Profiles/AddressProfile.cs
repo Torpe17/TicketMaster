@@ -24,7 +24,6 @@ namespace TicketMaster.Services.Profiles
                 .ForMember(a => a.City, opt => opt.PreCondition(dto => dto.City != null))
                 .ForMember(a => a.Street, opt => opt.PreCondition(dto => dto.Street != null))
                 .ForMember(a => a.HouseNumber, opt => opt.PreCondition(dto => dto.HouseNumber != null))
-                .ForMember(a => a.UserId, opt => opt.PreCondition(dto => dto.UserId != null))
                 .ForMember(a => a.Floor, opt => opt.PreCondition(dto => dto.SetFloor == true));
 
         }

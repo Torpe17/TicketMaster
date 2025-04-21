@@ -17,6 +17,5 @@ namespace TicketMaster.Services.DTOs
         public string? Floor { get; set; }
         public bool? SetFloor { get; set; } = false;
         public int? HouseNumber { get; set; }
-        public int? UserId { get; set; }
     }
 }

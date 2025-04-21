@@ -1,29 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
+using TicketMaster.Services;
 using TicketMaster.Services.DTOs;
 
 namespace TicketMaster.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AddressesController : ControllerBase
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
+        private IAddressService _addressService;
 
-        public AddressesController(UnitOfWork unitOfWork, IMapper mapper)
+        public AddressesController(UnitOfWork unitOfWork, IMapper mapper, IAddressService addressService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _addressService = addressService;
         }
 
         // GET: api/Addresses
@@ -31,11 +37,11 @@ namespace TicketMaster.Controllers
         public async Task<ActionResult<IEnumerable<AddressGetDTO>>> GetAddresses()
         {
             var addresses = await _unitOfWork.AddressRepository.GetAsync(includedProperties: ["User"]);
-            return _mapper.Map<List<AddressGetDTO>>(addresses); 
+            return _mapper.Map<List<AddressGetDTO>>(addresses);
         }
 
-        // GET: api/Addresses/5
-        [HttpGet("{id}")]
+        // GET: api/Addresses
+        [HttpGet]
         public async Task<ActionResult<AddressGetDTO>> GetAddress(int id)
         {
             var address = await _unitOfWork.AddressRepository.GetByIdAsync(id, includedReferences: ["User"]);
@@ -84,23 +90,17 @@ namespace TicketMaster.Controllers
         // POST: api/Addresses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Address>> PostAddress(AddressPostDTO address)
+        public async Task<ActionResult<AddressGetDTO>> PostAddress(AddressPostDTO dto)
         {
-            User? user = await _unitOfWork.UserRepository.GetByIdAsync(address.UserId, includedReferences: ["Address"]);
-            if (user == null) {
-                return BadRequest($"User (id: {address.UserId}) not found");
-            }
-            
-            if (user.Address != null)
+            try
             {
-                return BadRequest($"Only one address is allowed for a user");
+                var userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                var address = await _addressService.CreateAddressAsync(userId, dto);
+                return Created();
             }
-            Address newAddress = _mapper.Map<Address>(address);
-
-            await _unitOfWork.AddressRepository.InsertAsync(newAddress);
-            await _unitOfWork.SaveAsync();
-            
-            return Created();
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (ArgumentException e) { return BadRequest(e.Message); }
+            catch (Exception e) { return StatusCode(StatusCodes.Status500InternalServerError, e.Message); }
         }
 
         // DELETE: api/Addresses/5
