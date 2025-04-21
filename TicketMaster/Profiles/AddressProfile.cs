@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using TicketMaster.DataContext.Models;
-using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.AddressDTOs;
 
 namespace TicketMaster.Services.Profiles
 {

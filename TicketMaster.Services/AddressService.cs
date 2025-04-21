@@ -8,8 +8,8 @@ using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services.DTOs.UserDTOs;
-using TicketMaster.Services.DTOs;
 using System.Net;
+using TicketMaster.Services.DTOs.AddressDTOs;
 
 namespace TicketMaster.Services
 {

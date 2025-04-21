@@ -2,6 +2,7 @@
 using TicketMaster.Services.DTOs;
 using TicketMaster.DataContext.Models;
 using TicketMaster.Services.DTOs.UserDTOs;
+using TicketMaster.Services.DTOs.AddressDTOs;
 
 namespace TicketMaster.Profiles
 {

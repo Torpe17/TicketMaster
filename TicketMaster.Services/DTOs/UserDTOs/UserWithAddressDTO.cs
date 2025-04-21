@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TicketMaster.Services.DTOs.AddressDTOs;
 
 namespace TicketMaster.Services.DTOs.UserDTOs
 {

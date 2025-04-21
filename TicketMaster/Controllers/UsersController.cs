@@ -13,7 +13,7 @@ using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services;
-using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.AddressDTOs;
 using TicketMaster.Services.DTOs.UserDTOs;
 
 namespace TicketMaster.Controllers
