@@ -130,7 +130,7 @@ INSERT INTO Screenings (FilmId, RoomId, Date) VALUES
 
 INSERT INTO Users (Name, Email, PasswordHash, AddressId, BirthDate) VALUES
 ('Admin admin', 'admin@admin.com', '$2a$11$EeroP1p1rS.dvBoXZ7WcsOiCf9lZMOa05YCj6F8MSFmH0TPSze626', 1, '2003-04-08'),
-('TicketMaster Guardian', 'cash@eir.com', '$2a$11$JZ3Fy4kRWxOSkN1UEqRcx.yqWO3BEGkTvaUG1xct.Ay3fF5l2.FGy', 2, '2000-02-02'),
+('TicketMaster Guardian', 'cash@ier.com', '$2a$11$JZ3Fy4kRWxOSkN1UEqRcx.yqWO3BEGkTvaUG1xct.Ay3fF5l2.FGy', 2, '2000-02-02'),
 ('Tóth Balázs', 'toth.balazs@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 3, '1992-03-03'),
 ('Szabó Zsófia', 'szabo.zsofia@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 4, '1993-04-04'),
 ('Horváth Dávid', 'horvath.david@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 5, '1994-05-05'),
