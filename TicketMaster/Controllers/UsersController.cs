@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services;
 using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.UserDTOs;
 
 namespace TicketMaster.Controllers
 {
@@ -57,8 +59,12 @@ namespace TicketMaster.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] UserRegisterDTO userDto)
         {
-            var result = await _userService.RegisterAsync(userDto);
-            return Ok(result);
+            try
+            {
+                var result = await _userService.RegisterAsync(userDto);
+                return Ok(result);
+            }
+            catch (Exception e) { return BadRequest(e.Message); }
         }
 
         [HttpPost("login")]
