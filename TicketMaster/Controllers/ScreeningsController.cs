@@ -42,9 +42,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Screenings/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "User")]
-        [Authorize(Roles = "Cashier")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Cashier, Customer")]
         public async Task<ActionResult<ScreeningGetDTO>> GetScreening(int id)
         {
             var screening = await unitOfWork.ScreeningRepository.GetByIdAsync(id);
