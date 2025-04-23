@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using TicketMaster.DataContext.Models;
-using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.TicketDTOs;
 
 namespace TicketMaster.Profiles
 {

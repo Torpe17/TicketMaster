@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TicketMaster.DataContext.Models;
 
-namespace TicketMaster.Services.DTOs
+namespace TicketMaster.Services.DTOs.TicketDTOs
 {
     public class TicketGetDTO
     {

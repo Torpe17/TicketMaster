@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Humanizer;
 using Humanizer.Localisation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
-using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.TicketDTOs;
 
 namespace TicketMaster.Controllers
 {
@@ -30,6 +31,9 @@ namespace TicketMaster.Controllers
 
         // GET: api/Tickets
         [HttpGet]
+        [Authorize(Roles ="User")]
+        [Authorize(Roles = "Cashier")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<TicketGetDTO>>> GetTickets()
         {
             var tickets = await unitOfWork.TicketRepository.GetAsync(
@@ -40,6 +44,9 @@ namespace TicketMaster.Controllers
 
         // GET: api/Tickets/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Cashier")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<TicketGetDTO>> GetTicket(int id)
         {
             var ticket = await unitOfWork.TicketRepository.GetByIdAsync(id);
@@ -58,6 +65,7 @@ namespace TicketMaster.Controllers
         // PUT: api/Tickets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutTicket(int id, TicketPutDTO dto)
         {
             Ticket? ticket = await unitOfWork.TicketRepository.GetByIdAsync(id);
@@ -104,6 +112,7 @@ namespace TicketMaster.Controllers
         // POST: api/Tickets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> PostTicket(TicketPostDTO @ticket)
         {
             if (@ticket.PurchaseId != null)
@@ -139,6 +148,7 @@ namespace TicketMaster.Controllers
 
         // DELETE: api/Tickets/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
             await unitOfWork.TicketRepository.DeleteByIdAsync(id);
