@@ -52,6 +52,44 @@ namespace TicketMaster.Controllers
             return _mapper.Map<FilmGetDTO>(film);
         }
 
+        [HttpGet("on/{date}")]
+        public async Task<ActionResult<IEnumerable<FilmGetDTO>>> GetFilmsByDate(string date)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            if (films == null)
+            {
+                return NotFound("Films not found");
+            }
+            DateTime dateTime = DateTime.Parse(date);
+            var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date.Date == dateTime)).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+        }
+
+        [HttpGet("after/{date}")]
+        public async Task<ActionResult<IEnumerable<FilmGetDTO>>> GetFilmsAfterDate(string date)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            if (films == null)
+            {
+                return NotFound("Films not found");
+            }
+            DateTime dateTime = DateTime.Parse(date);
+            var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date >= dateTime)).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+        }
+        [HttpGet("name")]
+        public async Task<ActionResult<IEnumerable<FilmGetDTO>>> GetFilmByName(string name)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            if (films == null)
+            {
+                return NotFound("Films not found");
+            }
+            var filmsOnDate = films.Where(f => f.Title.ToLower().Contains(name.ToLower())).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+        }
+
+
         // PUT: api/Film/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
