@@ -17,7 +17,6 @@ namespace TicketMaster.Services
     {
         Task<AddressGetDTO> GetAddressByUserIdAsync(int userId);
         Task<AddressGetDTO> CreateAddressAsync(int userId, AddressPostDTO dto);
-        Task<AddressGetDTO> UpdateAddressByUserIdAsync(int userId, AddressPutDTO dto);
         Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO dto);
         Task DeleteAddressByUserIdAsync(int userId);
     }
@@ -55,9 +54,15 @@ namespace TicketMaster.Services
             return _mapper.Map<AddressGetDTO>(newAddress);
         }
 
-        public async Task DeleteAddressByUserIdAsync(int id)
+        public async Task DeleteAddressByUserIdAsync(int userId)
         {
-            throw new NotImplementedException();
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedReferences: ["Address"]);
+
+            if (user == null) throw new KeyNotFoundException("User not found");
+            if (user.Address == null) throw new KeyNotFoundException("This user doesn't have an address");
+
+            await _unitOfWork.AddressRepository.DeleteByIdAsync(user.Address.Id);
+            await _unitOfWork.SaveAsync();
         }
 
         public async Task<AddressGetDTO> GetAddressByUserIdAsync(int userId)
@@ -89,11 +94,6 @@ namespace TicketMaster.Services
             await _context.SaveChangesAsync();
 
             return _mapper.Map<AddressGetDTO>(user.Address);
-        }
-
-        public async Task<AddressGetDTO> UpdateAddressByUserIdAsync(int userId, AddressPutDTO dto)
-        {
-            throw new NotImplementedException();
         }
     }
 }
