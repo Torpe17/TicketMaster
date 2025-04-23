@@ -31,9 +31,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Tickets
         [HttpGet]
-        [Authorize(Roles ="User")]
-        [Authorize(Roles = "Cashier")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Cashier")]
         public async Task<ActionResult<IEnumerable<TicketGetDTO>>> GetTickets()
         {
             var tickets = await unitOfWork.TicketRepository.GetAsync(
@@ -44,9 +42,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Tickets/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "User")]
-        [Authorize(Roles = "Cashier")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Cashier, Customer")]
         public async Task<ActionResult<TicketGetDTO>> GetTicket(int id)
         {
             var ticket = await unitOfWork.TicketRepository.GetByIdAsync(id);
