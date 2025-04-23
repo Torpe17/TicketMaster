@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TicketMaster.DataContext.Models;
-using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.ScreeningDTOs;
 
 namespace TicketMaster.Services.Profiles
 {

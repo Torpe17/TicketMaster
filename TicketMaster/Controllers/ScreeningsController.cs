@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Humanizer;
 using Humanizer.Localisation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
-using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.ScreeningDTOs;
 
 namespace TicketMaster.Controllers
 {
@@ -30,6 +31,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Screenings
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ScreeningGetDTO>>> GetScreenings()
         {
             var screenings = await unitOfWork.ScreeningRepository.GetAsync(
@@ -40,6 +42,9 @@ namespace TicketMaster.Controllers
 
         // GET: api/Screenings/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Cashier")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ScreeningGetDTO>> GetScreening(int id)
         {
             var screening = await unitOfWork.ScreeningRepository.GetByIdAsync(id);
@@ -58,6 +63,7 @@ namespace TicketMaster.Controllers
         // PUT: api/Screenings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutScreening(int id, ScreeningPutDTO dto)
         {
             Screening? screening = await unitOfWork.ScreeningRepository.GetByIdAsync(id);
@@ -106,6 +112,7 @@ namespace TicketMaster.Controllers
         // POST: api/Screenings
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> PostScreening(ScreeningPostDTO screening)
         {
             Film? film = await unitOfWork.FilmRepository.GetByIdAsync(screening.FilmId);
@@ -133,6 +140,7 @@ namespace TicketMaster.Controllers
 
         // DELETE: api/Screenings/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteScreening(int id)
         {
             await unitOfWork.ScreeningRepository.DeleteByIdAsync(id);
