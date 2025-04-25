@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
+using TicketMaster.Services;
 using TicketMaster.Services.DTOs.ScreeningDTOs;
 
 namespace TicketMaster.Controllers
@@ -20,13 +21,11 @@ namespace TicketMaster.Controllers
     [ApiController]
     public class ScreeningsController : ControllerBase
     {
-        private readonly UnitOfWork unitOfWork;
-        private readonly IMapper mapper;
+        private readonly IScreeningService screeningService;
 
-        public ScreeningsController(UnitOfWork _unitOfWork, IMapper _mapper)
+        public ScreeningsController(IScreeningService _screeningService)
         {
-            unitOfWork = _unitOfWork;
-            mapper = _mapper;
+            screeningService = _screeningService;
         }
 
         // GET: api/Screenings
@@ -34,10 +33,7 @@ namespace TicketMaster.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ScreeningGetDTO>>> GetScreenings()
         {
-            var screenings = await unitOfWork.ScreeningRepository.GetAsync(
-                includedProperties: ["Film", "Tickets"]
-                );
-            return mapper.Map<List<ScreeningGetDTO>>(screenings);
+            return await screeningService.GetScreeningsAsync();
         }
 
         // GET: api/Screenings/5
@@ -45,17 +41,15 @@ namespace TicketMaster.Controllers
         [Authorize(Roles = "Admin, Cashier, Customer")]
         public async Task<ActionResult<ScreeningGetDTO>> GetScreening(int id)
         {
-            var screening = await unitOfWork.ScreeningRepository.GetByIdAsync(id);
-
-            if (screening == null)
+            try
             {
-                return NotFound();
+                return await screeningService.GetScreeningByIdAsync(id);
+            }
+            catch (KeyNotFoundException e) 
+            {
+                return NotFound(e.Message);
             }
 
-            await unitOfWork.ScreeningRepository.GetByIdAsync(id, includedReferences: ["Film"]);
-            await unitOfWork.ScreeningRepository.GetByIdAsync(id, includedCollections: ["Tickets"]);
-
-            return mapper.Map<ScreeningGetDTO>(screening);
         }
 
         // PUT: api/Screenings/5
@@ -64,47 +58,19 @@ namespace TicketMaster.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutScreening(int id, ScreeningPutDTO dto)
         {
-            Screening? screening = await unitOfWork.ScreeningRepository.GetByIdAsync(id);
-
-            if (screening == null)
-            {
-                return NotFound();
-            }
-
-            mapper.Map(dto, screening);
-
-            Film? film = await unitOfWork.FilmRepository.GetByIdAsync(screening.FilmId);
-            if (film == null)
-            {
-                return BadRequest("The film does not exist");
-            }
-            Room? room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
-            if (room == null)
-            {
-                return BadRequest("Room does not exist");
-            }
-            if (screening.Date < DateTime.Now)
-            {
-                return BadRequest("Screening cannot be in the past");
-            }
-
             try
             {
-                await unitOfWork.SaveAsync();
+                await screeningService.PutScreeningAsync(id, dto);
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (KeyNotFoundException e)
             {
-                if (!await ScreeningExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound(e.Message);
             }
-
-            return Ok();
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // POST: api/Screenings
@@ -113,27 +79,15 @@ namespace TicketMaster.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> PostScreening(ScreeningPostDTO screening)
         {
-            Film? film = await unitOfWork.FilmRepository.GetByIdAsync(screening.FilmId);
-            if (film == null)
+            try
             {
-                return BadRequest("The film does not exist");
+                await screeningService.PostScreeningAsync(screening);
+                return Created();
             }
-            Room? room = await unitOfWork.RoomRepository.GetByIdAsync(screening.RoomId);
-            if (room == null)
+            catch (Exception e)
             {
-                return BadRequest("Room does not exist");
+                return BadRequest(e.Message);
             }
-            if (screening.Date < DateTime.Now)
-            {
-                return BadRequest("Screening cannot be in the past");
-            }
-
-            Screening newScreening = mapper.Map<Screening>(screening);
-
-            await unitOfWork.ScreeningRepository.InsertAsync(newScreening);
-            await unitOfWork.SaveAsync();
-
-            return Created();
         }
 
         // DELETE: api/Screenings/5
@@ -141,15 +95,8 @@ namespace TicketMaster.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteScreening(int id)
         {
-            await unitOfWork.ScreeningRepository.DeleteByIdAsync(id);
-            await unitOfWork.SaveAsync();
-
+            await screeningService.DeleteScreeningAsync(id);
             return NoContent();
-        }
-
-        private async Task<bool> ScreeningExists(int id)
-        {
-            return await unitOfWork.ScreeningRepository.GetByIdAsync(id) != null;
         }
     }
 }
