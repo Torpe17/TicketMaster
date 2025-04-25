@@ -93,7 +93,7 @@ namespace TicketMaster.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
-            ticketService.DeleteTicketAsync(id);
+            await ticketService.DeleteTicketAsync(id);
             return NoContent();
         }
     }
