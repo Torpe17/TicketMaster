@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace TicketMaster.Services
 {
-    internal class PuchaseService
+    public interface IPurchaseService
+    {
+        Task
+    }
+    internal class PuchaseService : IPurchaseService
     {
     }
 }

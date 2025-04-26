@@ -10,7 +10,7 @@ using TicketMaster.Services.DTOs.PurchaseDTOs;
 namespace TicketMaster.Controllers;
 
 [ApiController]
-[Route("api/purchase")]
+[Route("api")]
 public class PurchaseController : Controller
 {
     private readonly ILogger<PurchaseController> _logger;
@@ -24,7 +24,7 @@ public class PurchaseController : Controller
         _logger = logger;
     }
     
-    [HttpGet("getall")]
+    [HttpGet("purchases")]
     [ProducesResponseType(typeof(IEnumerable<PurchaseGetDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetPurchases()
@@ -51,7 +51,7 @@ public class PurchaseController : Controller
         }
     }
 
-    [HttpGet("get/{id}")]
+    [HttpGet("purchase/{id}")]
     [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -85,7 +85,7 @@ public class PurchaseController : Controller
         
     }
 
-    [HttpPost("create")]
+    [HttpPost("purchase")]
     [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -118,7 +118,7 @@ public class PurchaseController : Controller
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("purchase/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -147,7 +147,7 @@ public class PurchaseController : Controller
         }
     }
     
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("purchase/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
