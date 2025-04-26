@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Models;
 using System;
 using System.Collections.Generic;
@@ -31,10 +31,21 @@ namespace TicketMaster.DataContext.Context
                 .WithOne(a => a.User)
                 .HasForeignKey<Address>(a => a.UserId);
             
+            
+            /* PURCHASE ENTITY */
+            // Purchase -> Tickets (One-to-Many)
             modelBuilder.Entity<Purchase>()
                 .HasMany(p => p.Tickets)
                 .WithOne(t => t.Purchase)
                 .HasForeignKey(t => t.PurchaseId);
+            
+            // Purchase PurchaseDate value generation
+            modelBuilder.Entity<Purchase>()
+                .Property(p => p.PurchaseDate)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValue(DateTime.UtcNow);
+            
+            
             base.OnModelCreating(modelBuilder);
         }
         // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

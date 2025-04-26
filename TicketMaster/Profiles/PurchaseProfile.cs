@@ -19,11 +19,5 @@ public class PurchaseProfile : Profile
         
         // post
         CreateMap<PurchasePostDTO, Purchase>();
-
-        // put
-        CreateMap<PurchasePutDTO, Purchase>()
-            .ForMember(p => p.PurchaseDate, opt => opt.PreCondition(dto => dto.PurchaseDate != null))
-            .ForMember(p => p.UserId, opt => opt.PreCondition(dto => dto.SetUserId == true))
-            .ForMember(p => p.TotalPrice, opt => opt.PreCondition(dto => dto.TotalPrice != null));
     }
 }

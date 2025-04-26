@@ -1,9 +1,12 @@
 using System.Data.Common;
+using System.Security.Claims;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
+using TicketMaster.Services;
 using TicketMaster.Services.DTOs;
 using TicketMaster.Services.DTOs.PurchaseDTOs;
 
@@ -11,75 +14,160 @@ namespace TicketMaster.Controllers;
 
 [ApiController]
 [Route("api")]
-public class PurchaseController : Controller
+[Authorize]
+public class PurchaseController(IPurchaseService purchaseService, ILogger<PurchaseController> logger, IAuthorizationService authorizationService)
+    : Controller
 {
-    private readonly ILogger<PurchaseController> _logger;
-    private UnitOfWork _unitOfWork;
-    private IMapper _mapper;
-
-    public PurchaseController(UnitOfWork unitOfWork, IMapper mapper,ILogger<PurchaseController> logger)
-    {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _logger = logger;
-    }
-    
     [HttpGet("purchases")]
     [ProducesResponseType(typeof(IEnumerable<PurchaseGetDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetPurchases()
     {
         try
         {
-            var purchases = await _unitOfWork.PurchaseRepository.GetAsync(
-                includedProperties: ["User", "Tickets"]
-            );
-            if (purchases == null || !purchases.Any()) { return Ok(Enumerable.Empty<PurchaseGetDTO>()); }
-            
-            return Ok(_mapper.Map<List<PurchaseGetDTO>>(purchases));
+            return Ok(await purchaseService.GetPurchasesAsync());
         }
         catch (DbException db)
         {
-            _logger.LogError(db, "Unexpected error occurred in the database while getting all Purchases.");
+            logger.LogError(db, $"DatabaseException occured while getting purchases.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");
             return StatusCode(500, "A database error occured.");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unexpected error occurred while getting all Purchases.");
+            logger.LogError(e, $"Unexpected exception occurred while getting purchases.\nERROR MESSAGE: {e.Message}");
+            return StatusCode(500, "An unexpected error occured.");
+            
+        }
+    }
+    
+    [HttpGet("purchases/{userId:int}")]
+    [ProducesResponseType(typeof(IEnumerable<PurchaseGetDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetPurchasesByUserId(int userId)
+    {
+        var authorizationResult = await authorizationService.AuthorizeAsync(
+            User,
+            userId,
+            "AdminOnly");
+
+        if (!authorizationResult.Succeeded)
+        {
+            return Forbid();
+        }
+        try
+        {
+            return Ok(await purchaseService.GetPurchasesByUserIdAsync(userId));
+        }
+        catch (DbException db)
+        {
+            logger.LogError(db,
+                $"DatabaseException occured while getting purchases with userId: {userId}.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");
+            return StatusCode(500, "A database error occured.");
+        }
+        catch (ArgumentOutOfRangeException aoorEx)
+        {
+            logger.LogError(aoorEx,
+                $"ArgumentOutOfRangeException occured while getting purchases with userId: {userId}.\nERROR MESSAGE: {aoorEx.Message}");
+            return StatusCode(400, "UserId is out of range.");
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            logger.LogError(knfEx,
+                $"KeyNotFoundException occured while getting purchases with userId: {userId}.\nERROR MESSAGE: {knfEx.Message}");
+            return StatusCode(404, $"Purchases with userId: {userId} not found.");
+
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, $"Unexpected exception occurred while getting purchases with userId: {userId}.\nERROR MESSAGE: {e.Message}");
+            return StatusCode(500, "An unexpected error occured.");
+            
+        }
+    }
+    
+    [HttpGet("myPurchases")]
+    [ProducesResponseType(typeof(IEnumerable<PurchaseGetDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "User")]
+    public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetOwnPurchases()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int id))
+        {
+            return Unauthorized();
+        }
+        
+        try
+        {
+            return Ok(await purchaseService.GetPurchasesByUserIdAsync(id));
+        }
+        catch (DbException db)
+        {
+            logger.LogError(db,
+                $"DatabaseException occured while getting purchases with userId: {id}.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");
+            return StatusCode(500, "A database error occured.");
+        }
+        catch (ArgumentOutOfRangeException aoorEx)
+        {
+            logger.LogError(aoorEx,
+                $"ArgumentOutOfRangeException occured while getting purchases with userId: {id}.\nERROR MESSAGE: {aoorEx.Message}");
+            return StatusCode(400, "UserId is out of range.");
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            logger.LogError(knfEx,
+                $"KeyNotFoundException occured while getting purchases with userId: {id}.\nERROR MESSAGE: {knfEx.Message}");
+            return StatusCode(404, $"Purchases with userId: {id} not found.");
+
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, $"Unexpected exception occurred while getting purchases with userId: {id}.\nERROR MESSAGE: {e.Message}");
             return StatusCode(500, "An unexpected error occured.");
             
         }
     }
 
-    [HttpGet("purchase/{id}")]
+    [HttpGet("purchase/{purchaseId:int}")]
     [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PurchaseGetByIdDTO>> GetPurchase(int id)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize(Roles = "Admin, User, Cashier")]
+    public async Task<ActionResult<PurchaseGetByIdDTO>> GetPurchaseById(int purchaseId)
     {
-        if (id <= 0) return BadRequest("ID must be greater than zero.");
-        // var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(id, includedReferences: ["User"], includedCollections: ["Tickets"]); // race condition if both are set at the same time
         try
         {
-            var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(id);
-            await _unitOfWork.PurchaseRepository.GetByIdAsync(id, includedReferences: ["User"]);
-            await _unitOfWork.PurchaseRepository.GetByIdAsync(id, includedCollections: ["Tickets"]);
-
-            if (purchase == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(_mapper.Map<PurchaseGetByIdDTO>(purchase));
+            return Ok(await purchaseService.GetPurchaseByIdAsync(purchaseId));
         }
         catch (DbException db)
         {
-            _logger.LogError(db, $"Unexpected error occurred in the database while getting Purchase by ID: {id}.");
+            logger.LogError(db,
+                $"DatabaseException occurred while getting Purchase by ID: {purchaseId}.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");
             return StatusCode(500, "A database error occured.");
+        }
+        catch (ArgumentOutOfRangeException aoorEx)
+        {
+            logger.LogError(aoorEx,
+                $"ArgumentOutOfRangeException occured while getting purchase by purchaseId: {purchaseId}.\nERROR MESSAGE: {aoorEx.Message}");
+            return StatusCode(400, "PurchaseId is out of range.");
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            logger.LogError(knfEx,
+                $"KeyNotFoundException occured while getting purchase by purchaseId: {purchaseId}.\nERROR MESSAGE: {knfEx.Message}");
+            return StatusCode(404, $"Purchase not found with purchaseId: {purchaseId}.");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Unexpected error occurred while getting Purchase by ID: {id}.");
+            logger.LogError(e, $"Unexpected error occurred while getting Purchase by ID: {purchaseId}.\nERROR MESSAGE: {e.Message}");
             return StatusCode(500, "An unexpected error occured.");
         }
         
@@ -87,88 +175,54 @@ public class PurchaseController : Controller
 
     [HttpPost("purchase")]
     [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PostPurchase(PurchasePostDTO @purchase)
+    [AllowAnonymous]
+    public async Task<IActionResult> PostPurchase(PurchasePostDTO purchase)
     {
         try
         {
-            if (@purchase.UserId != null)
-            {
-                User? user = await _unitOfWork.UserRepository.GetByIdAsync(@purchase.UserId.Value);
-                if (user == null) { return BadRequest("User does not exist."); }
-            }
-
-            Purchase newPurchase = _mapper.Map<Purchase>(@purchase);
-
-            await _unitOfWork.PurchaseRepository.InsertAsync(newPurchase);
-            await _unitOfWork.SaveAsync();
-
+            await purchaseService.CreatePurchase(purchase);
             return Created();
         }
         catch (DbException db)
         {
-            _logger.LogError(db, $"Unexpected error occurred in the database while creating Purchase.");
+            logger.LogError(db, $"DatabaseException occured while creating Purchase.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");
             return StatusCode(500, "A database error occured.");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Unexpected error occurred while creating Purchase.");
-            return StatusCode(500, "An unexpected error occured.");
-        }
-    }
-
-    [HttpPut("purchase/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutPurchase(int id, PurchasePutDTO purchase)
-    {
-        try
-        {
-            if (id <= 0) return BadRequest("ID must be greater than zero.");
-            Purchase? p = await _unitOfWork.PurchaseRepository.GetByIdAsync(id);
-            if (p == null) return NotFound("Purchase specified by ID not found.");
-
-            _mapper.Map(purchase, p);
-            await _unitOfWork.SaveAsync();
-
-            return NoContent();
-        }
-        catch (DbException db)
-        {
-            _logger.LogError(db, $"Unexpected error occurred in the database while updating Purchase with ID: {id}.");
-            return StatusCode(500, "A database error occured.");
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, $"Unexpected error occurred while updating Purchase with ID: {id}.");
+            logger.LogError(e, $"Unexpected error occurred while creating Purchase.\nERROR MESSAGE: {e.Message}");
             return StatusCode(500, "An unexpected error occured.");
         }
     }
     
-    [HttpDelete("purchase/{id}")]
+    [HttpDelete("purchase/{purchaseId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    [Authorize(Roles = "Admin,Cashier")]
+    public async Task<IActionResult> Delete(int purchaseId)
     {
-        if(id <= 0) return BadRequest("ID must be greater than zero.");
         try
         {
-            await _unitOfWork.PurchaseRepository.DeleteByIdAsync(id);
-            await _unitOfWork.SaveAsync();
-
+            await purchaseService.DeletePurchase(purchaseId);
             return NoContent();
         }
         catch (DbException db)
         {
-            _logger.LogError(db, $"Unexpected error occurred in the database while deleting Purchase with ID: {id}.");
+            logger.LogError(db,
+                $"DatabaseException occured while deleting Purchase with ID: {purchaseId}.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");
             return StatusCode(500, "A database error occured.");
+        }
+        catch (ArgumentOutOfRangeException aoorEx)
+        {
+            logger.LogError(aoorEx,
+                $"ArgumentOutOfRangeException occured while deleting Purchase with ID: {purchaseId}.\nERROR MESSAGE: {aoorEx.Message}");
+            return StatusCode(400, "PurchaseId is out of range.");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, $"Unexpected error occurred while deleting Purchase with ID: {id}.");
+            logger.LogError(e, $"Unexpected error occurred while deleting Purchase with ID: {purchaseId}.\nERROR MESSAGE: {e.Message}");
             return StatusCode(500, "An unexpected error occured.");
         }
     }

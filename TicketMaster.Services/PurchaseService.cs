@@ -1,0 +1,66 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using TicketMaster.DataContext.Context;
+using TicketMaster.DataContext.Models;
+using TicketMaster.DataContext.UnitsOfWork;
+using TicketMaster.Services.DTOs.PurchaseDTOs;
+
+namespace TicketMaster.Services
+{
+    public interface IPurchaseService
+    {
+        Task<List<PurchaseGetDTO>> GetPurchasesAsync();
+        Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId);
+        Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId);
+        Task CreatePurchase(PurchasePostDTO purchaseDto);
+        Task DeletePurchase(int purchaseId);
+    }
+    public class PurchaseService : IPurchaseService
+    {
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
+        private AppDbContext _appDbContext;
+        public async Task<List<PurchaseGetDTO>> GetPurchasesAsync()
+        {
+            return _mapper.Map<List<PurchaseGetDTO>>(await _unitOfWork.PurchaseRepository.GetAsync(includedProperties: ["Tickets"]));
+        }
+
+        public async Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId)
+        {
+            if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId));
+            var purchasesByUserId = _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases.Where(p => p.UserId == userId).ToListAsync());
+            if (purchasesByUserId == null) throw new KeyNotFoundException();
+
+            return purchasesByUserId;
+        }
+
+        
+        public async Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId)
+        {
+            if (purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
+            var purchase = _mapper.Map<PurchaseGetByIdDTO>(await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId));
+            if (purchase == null) throw new KeyNotFoundException();
+
+            return purchase;
+        }
+        
+
+        public async Task CreatePurchase(PurchasePostDTO purchaseDto)
+        {
+            await _unitOfWork.PurchaseRepository.InsertAsync(_mapper.Map<Purchase>(purchaseDto));
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DeletePurchase(int purchaseId)
+        {
+            if(purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
+            await _unitOfWork.PurchaseRepository.DeleteByIdAsync(purchaseId);
+            await _unitOfWork.SaveAsync();
+        }
+    }
+}

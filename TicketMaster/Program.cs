@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
@@ -47,6 +48,7 @@ namespace TicketMaster
             builder.Services.AddScoped<IAddressService, AddressService>();
             builder.Services.AddScoped<IFilmService, FilmService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
@@ -74,6 +76,18 @@ namespace TicketMaster
                     };
                 });
 
+            
+            // policies
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("SameUserOrAdmin", policy => policy.RequireAssertion(context =>
+                {
+                    var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    return context.User.IsInRole("Admin") || userIdClaim == context.Resource?.ToString();
+                }));
+            });
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
