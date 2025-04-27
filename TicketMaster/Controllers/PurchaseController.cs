@@ -49,15 +49,6 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetPurchasesByUserId(int userId)
     {
-        var authorizationResult = await authorizationService.AuthorizeAsync(
-            User,
-            userId,
-            "AdminOnly");
-
-        if (!authorizationResult.Succeeded)
-        {
-            return Forbid();
-        }
         try
         {
             return Ok(await purchaseService.GetPurchasesByUserIdAsync(userId));
