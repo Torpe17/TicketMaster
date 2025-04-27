@@ -9,13 +9,13 @@ namespace TicketMaster.Services.DTOs.UserDTOs
 {
     public class UserUpdateDTO
     {
-        [Required]
-        [StringLength(50)]
-        public string Username { get; set; }
+        //[Required]
+        //[StringLength(50)]
+        public string? Username { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        //[Required]
+        //[EmailAddress]
+        public string? Email { get; set; }
 
         public IList<int>? RoleIds { get; set; }
     }

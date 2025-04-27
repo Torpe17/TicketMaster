@@ -15,7 +15,11 @@ namespace TicketMaster.Profiles
                 .ForMember(x => x.Username, opt => opt.MapFrom(x=>x.Name));
 
             CreateMap<UserUpdateDTO, User>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.Name, opt => {
+                    opt.PreCondition(src => src.Username != null);
+                    opt.MapFrom(src => src.Username);
+                })
+                .ForMember(dest => dest.Email, opt => opt.PreCondition(src => src.Email != null))
                 .ForMember(dest => dest.Roles, opt => opt.PreCondition(src => src.RoleIds != null));
 
             CreateMap<User, UserWithAddressDTO>()
