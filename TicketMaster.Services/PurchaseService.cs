@@ -17,7 +17,7 @@ namespace TicketMaster.Services
     public interface IPurchaseService
     {
         Task<List<PurchaseGetDTO>> GetPurchasesAsync();
-        Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId);
+        Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId);
         Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId);
         Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId);
         Task DeletePurchase(int purchaseId);
@@ -40,13 +40,13 @@ namespace TicketMaster.Services
             return _mapper.Map<List<PurchaseGetDTO>>(await _unitOfWork.PurchaseRepository.GetAsync(includedProperties: ["Tickets", "User"]));
         }
 
-        public async Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId)
+        public async Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId)
         {
             if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId));
-            var purchasesByUserId = _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases.Include(p => p.Tickets).Include(p => p.User).Where(p => p.UserId == userId).ToListAsync());
-            if (purchasesByUserId == null) throw new KeyNotFoundException();
+            var purchases = _mapper.Map<List<PurchaseGetByIdDTO>>(await _appDbContext.Purchases.Include(p => p.Tickets).Include(p => p.User).Where(p => p.UserId == userId).ToListAsync());
+            if (purchases == null) throw new KeyNotFoundException();
 
-            return purchasesByUserId;
+            return purchases;
         }
 
         
@@ -119,6 +119,7 @@ namespace TicketMaster.Services
         public async Task DeletePurchase(int purchaseId)
         {
             if(purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
+            var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId);
             await _unitOfWork.PurchaseRepository.DeleteByIdAsync(purchaseId);
             await _unitOfWork.SaveAsync();
         }
