@@ -37,7 +37,7 @@ namespace TicketMaster.Controllers
 
         // GET: api/Tickets/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, Cashier, Customer")]
+        [Authorize]
         public async Task<ActionResult<TicketGetDTO>> GetTicket(int id)
         {
             try
@@ -95,6 +95,25 @@ namespace TicketMaster.Controllers
         {
             await ticketService.DeleteTicketAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("validate")]
+        [Authorize(Roles = "Cashier")]
+        public async Task<ActionResult> ValidateTicket(int ticketId)
+        {
+            try
+            {
+                await ticketService.Validate(ticketId);
+                return Ok("Ticket is valid and has been validated");
+            }
+            catch(KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

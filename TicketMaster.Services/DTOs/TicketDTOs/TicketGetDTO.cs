@@ -19,5 +19,6 @@ namespace TicketMaster.Services.DTOs.TicketDTOs
         public DateTime FilmDate { get; set; }
         public int RoomId { get; set; }
         public DateTime PurchaseDate { get; set; }
+        public bool IsValidated { get; set; }
     }
 }

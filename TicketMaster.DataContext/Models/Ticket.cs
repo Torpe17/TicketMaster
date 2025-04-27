@@ -10,5 +10,6 @@
         public double Price { get; set; }
         public Purchase? Purchase { get; set; }
         public Screening Screening { get; set; }
+        public bool IsValidated { get; set; } = false;
     }
 }
