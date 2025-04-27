@@ -6,59 +6,142 @@ using System.Threading.Tasks;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.Context;
 using Microsoft.EntityFrameworkCore;
+using TicketMaster.Services.DTOs;
+using TicketMaster.Services.DTOs.FilmDTOs;
+using TicketMaster.DataContext.UnitsOfWork;
+using AutoMapper;
 
 namespace TicketMaster.Services
 {
     public interface IFilmService
     {
-        List<Film> List();
-        //Task AddAsync<T>(T entity) where T : class;
-        //Task<T> GetByIdAsync<T>(int id) where T : class;
-        //Task<List<T>> GetAllAsync<T>() where T : class;
-        //Task UpdateAsync<T>(T entity) where T : class;
-        //Task DeleteAsync<T>(T entity) where T : class;
+        Task<List<FilmGetDTO>> GetAllAsync();
+        Task<FilmGetDTO> GetByIdAsync(int id);
+        Task<List<FilmGetDTO>> GetByNameAsync(string name);
+        Task<List<FilmGetDTO>> GetByDateAsync(string date);
+        Task<List<FilmGetDTO>> GetAfterDateAsync(string date);
+        Task AddFilmAsync(FilmPostDTO film);
+        Task UpdateFilmAsync(int id, FilmPutDTO film);
+        Task DeleteFilmAsync(int id);
     }
     public class FilmService : IFilmService
     {
-        private readonly AppDbContext _context;
-
-        public FilmService(AppDbContext context)
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
+        public FilmService(UnitOfWork unitOfWork, IMapper mapper)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
-        public List<Film> List()
+        public async Task AddFilmAsync(FilmPostDTO film)
         {
-            return _context.Films.ToList(); 
+            if (film == null)
+                throw new ArgumentException("Empty film");
+            if (film.Length <= 0)
+                throw new ArgumentException("Length can't be negative or 0 length");
+            if (film.AgeRating < 0 || film.AgeRating > 18)
+                throw new ArgumentException("Age rating must be between 0 and 18 including 0 and 18");
+            if (film.Title == null || film.Director == null || film.Genre == null || film.Description == null)
+                throw new ArgumentException("Title, Director, Genre and Description must be filled");
+
+            Film newFilm = _mapper.Map<Film>(film);
+
+            await _unitOfWork.FilmRepository.InsertAsync(newFilm);
+            await _unitOfWork.SaveAsync();
         }
 
-        //public async Task AddAsync<T>(T entity) where T : class
-        //{
-        //    _context.Set<T>().Add(entity);
-        //    await _context.SaveChangesAsync();
-        //}
+        public async Task DeleteFilmAsync(int id)
+        {
+            await _unitOfWork.FilmRepository.DeleteByIdAsync(id);
+            await _unitOfWork.SaveAsync();
+        }
 
-        //public async Task<T> GetByIdAsync<T>(int id) where T : class
-        //{
-        //    return await _context.Set<T>().FindAsync(id);
-        //}
+        public async Task<List<FilmGetDTO>> GetAfterDateAsync(string date)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
 
-        //public async Task<List<T>> GetAllAsync<T>() where T : class
-        //{
-        //    return await _context.Set<T>().ToListAsync();
-        //}
+            DateTime dateTime = DateTime.Parse(date);
+            var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date >= dateTime)).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+        }
 
-        //public async Task UpdateAsync<T>(T entity) where T : class
-        //{
-        //    _context.Set<T>().Update(entity);
-        //    await _context.SaveChangesAsync();
-        //}
+        public async Task<List<FilmGetDTO>> GetAllAsync()
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(
+                 //includedProperties: ["Screenings"]
+                 );
+            return _mapper.Map<List<FilmGetDTO>>(films);
+        }
 
-        //public async Task DeleteAsync<T>(T entity) where T : class
-        //{
-        //    _context.Set<T>().Remove(entity);
-        //    await _context.SaveChangesAsync();
-        //}
-        
+        public async Task<List<FilmGetDTO>> GetByDateAsync(string date)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+
+            DateTime dateTime = DateTime.Parse(date);
+            var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date.Date == dateTime)).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+        }
+
+        public async Task<FilmGetDTO> GetByIdAsync(int id)
+        {
+            var film = await _unitOfWork.FilmRepository.GetByIdAsync(id/*,
+                includedCollections: ["Screenings"]*/
+                );
+
+            if (film == null)
+            {
+                throw new KeyNotFoundException($"Film (id: {id}) not found");
+            }
+
+            return _mapper.Map<FilmGetDTO>(film);
+        }
+
+        public async Task<List<FilmGetDTO>> GetByNameAsync(string name)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+
+            var filmsWithName = films.Where(f => f.Title.ToLower().Contains(name.ToLower())).ToList();
+            return _mapper.Map<List<FilmGetDTO>>(filmsWithName);
+        }
+
+
+        public async Task UpdateFilmAsync(int id, FilmPutDTO film)
+        {
+            if (film == null)
+                throw new ArgumentException("Film was empty");
+
+            Film? f = await _unitOfWork.FilmRepository.GetByIdAsync(id);
+            if (f == null)
+                throw new ArgumentException("Film not found");
+
+            if (film.Length != null && film.Length <= 0)
+                throw new ArgumentException("Length can't be negative or 0 length");
+            if ((film.AgeRating < 0 || film.AgeRating > 18) && film.SetAgeRating)
+                throw new ArgumentException("Age rating must be between 0 and 18 including 0 and 18");
+
+            _mapper.Map(film, f);
+
+            try
+            {
+                await _unitOfWork.SaveAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!FilmExists(id))
+                {
+                    throw new KeyNotFoundException($"Film not found with id: {id}");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            //return Created("Film updated");
+        }
+        private bool FilmExists(int id)
+        {
+            return _unitOfWork.FilmRepository.GetByIdAsync(id) != null;
+        }
     }
 }

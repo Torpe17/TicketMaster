@@ -31,15 +31,15 @@ public class RoomService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext dbC
     // ROOMS
     public async Task<IEnumerable<RoomGetAllDTO>> GetAllRoomsAsync()
     {
-        return mapper.Map<List<RoomGetAllDTO>>(await unitOfWork.RoomRepository.GetAsync());
+        return mapper.Map<List<RoomGetAllDTO>>(await unitOfWork.RoomRepository.GetAsync(includedProperties: ["RoomType", "Screenings"]));
     }
 
     public async Task<IEnumerable<RoomGetAllDTO>> GetEmptyRoomsAsync()
     {
         var currentDate = DateTime.Now;
     
-        var emptyRooms = await dbContext.Rooms
-            .Where(r => !r.Screenings.Any(s => s.Date >= currentDate)) // No future screenings
+        var emptyRooms = await dbContext.Rooms.Include(x => x.RoomType).Include(x => x.Screenings)
+            .Where(r => !r.Screenings.Any(s => s.Date >= currentDate)) 
             .ToListAsync();
 
         return mapper.Map<List<RoomGetAllDTO>>(emptyRooms);
@@ -48,10 +48,16 @@ public class RoomService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext dbC
     public async Task<RoomGetByIdDTO> GetRoomByIdAsync(int id)
     {
         if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id));
-        var room = mapper.Map<RoomGetByIdDTO>(await unitOfWork.RoomRepository.GetByIdAsync(id));
-        if (room == null) throw new KeyNotFoundException();
+    
+        var room = await dbContext.Rooms
+            .Include(r => r.RoomType)
+            .Include(r => r.Screenings)
+            .ThenInclude(s => s.Film) // Explicit ThenInclude
+            .FirstOrDefaultAsync(r => r.RoomId == id);
 
-        return room;
+        if (room == null) throw new KeyNotFoundException();
+    
+        return mapper.Map<RoomGetByIdDTO>(room);
     }
 
     public async Task AddRoomAsync(RoomCreateDTO dto)
@@ -68,7 +74,7 @@ public class RoomService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext dbC
         var existingRoom = await unitOfWork.RoomRepository.GetByIdAsync(id);
         if (existingRoom == null) throw new KeyNotFoundException();
 
-        mapper.Map(existingRoom, dto);
+        mapper.Map(dto, existingRoom);
         await unitOfWork.SaveAsync();
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
@@ -17,10 +18,11 @@ namespace TicketMaster.Services
     public interface IPurchaseService
     {
         Task<List<PurchaseGetDTO>> GetPurchasesAsync();
-        Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId);
+        Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId);
         Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId);
         Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId);
         Task DeletePurchase(int purchaseId);
+        Task<bool> CanUserDeletePurchaseAsync(int purchaseId, int userId, bool isAdminOrCashier);
     }
     public class PurchaseService : IPurchaseService
     {
@@ -40,20 +42,21 @@ namespace TicketMaster.Services
             return _mapper.Map<List<PurchaseGetDTO>>(await _unitOfWork.PurchaseRepository.GetAsync(includedProperties: ["Tickets", "User"]));
         }
 
-        public async Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId)
+        public async Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId)
         {
             if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId));
-            var purchasesByUserId = _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases.Include(p => p.Tickets).Include(p => p.User).Where(p => p.UserId == userId).ToListAsync());
-            if (purchasesByUserId == null) throw new KeyNotFoundException();
+            var purchases = _mapper.Map<List<PurchaseGetByIdDTO>>(await _appDbContext.Purchases.Include(p => p.Tickets).Include(p => p.User).Where(p => p.UserId == userId).ToListAsync());
+            if (purchases == null) throw new KeyNotFoundException();
 
-            return purchasesByUserId;
+            return purchases;
         }
 
         
         public async Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId)
         {
             if (purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
-            var purchase = _mapper.Map<PurchaseGetByIdDTO>(await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId));
+            await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId, includedCollections: ["Tickets"]);
+            var purchase = _mapper.Map<PurchaseGetByIdDTO>(await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId, includedReferences: ["User"]));
             if (purchase == null) throw new KeyNotFoundException();
 
             return purchase;
@@ -119,8 +122,23 @@ namespace TicketMaster.Services
         public async Task DeletePurchase(int purchaseId)
         {
             if(purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
+            var purchase = _appDbContext.Purchases.Include(p => p.Tickets).ThenInclude(t => t.Screening).Include(p => p.User).FirstOrDefault(p => p.Id == purchaseId);
+            var firstTicket = purchase.Tickets.FirstOrDefault();
+            if (firstTicket?.Screening == null) { throw new InvalidOperationException("No valid tickets or screening found for this purchase."); }
+
+            TimeSpan diff = firstTicket.Screening.Date - DateTime.UtcNow;
+            if (diff.TotalHours < 4) { throw new InvalidOperationException("You cannot delete tickets 4 hours before screening."); }
             await _unitOfWork.PurchaseRepository.DeleteByIdAsync(purchaseId);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<bool> CanUserDeletePurchaseAsync(int purchaseId, int userId, bool isAdminOrCashier)
+        {
+            var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId);
+            if (purchase == null) throw new KeyNotFoundException($"Purchase with id({purchaseId}) not found.");
+            if (isAdminOrCashier) { return true; }
+
+            return purchase.UserId == userId;
         }
     }
 }

@@ -40,12 +40,6 @@ namespace TicketMaster.DataContext.Context
                 .HasMany(p => p.Tickets)
                 .WithOne(t => t.Purchase)
                 .HasForeignKey(t => t.PurchaseId);
-
-            // Purchase PurchaseDate value generation
-            modelBuilder.Entity<Purchase>()
-                .Property(p => p.PurchaseDate)
-                .ValueGeneratedOnAdd();
-                //.HasDefaultValue(DateTime.UtcNow);
             
             
             /* ROOM ENTITY*/
@@ -60,12 +54,6 @@ namespace TicketMaster.DataContext.Context
                 .HasMany(r => r.Screenings)
                 .WithOne()
                 .HasForeignKey(r => r.RoomId);
-
-            // Room ConstructedAt value generation
-            modelBuilder.Entity<Room>()
-                .Property(r => r.ConstructedAt)
-                .ValueGeneratedOnAdd();
-                //.HasDefaultValue(DateTime.UtcNow);
             
             
             base.OnModelCreating(modelBuilder);

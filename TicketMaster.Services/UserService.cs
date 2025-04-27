@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -28,6 +29,7 @@ namespace TicketMaster.Services
         Task<UserDTO> RegisterAsync(UserRegisterDTO UserDTO);
         Task<string> LoginAsync(UserLoginDTO UserDTO);
         Task<UserDTO> UpdateProfileAsync(int userId, UserUpdateDTO UserDTO);
+        Task AddRolesAsync(int userId, RoleUpdateDTO roleDto);
         Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
         Task<IList<RoleDTO>> GetRolesAsync();
         Task DeleteUser(int id);
@@ -168,20 +170,6 @@ namespace TicketMaster.Services
 
             _mapper.Map(UserUpdateDTO, user);
 
-            if (UserUpdateDTO.RoleIds != null && UserUpdateDTO.RoleIds.Any())
-            {
-                user.Roles.Clear();
-
-                foreach (var roleId in UserUpdateDTO.RoleIds)
-                {
-                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
-                    if (existingRole != null)
-                    {
-                        user.Roles.Add(existingRole);
-                    }
-                }
-            }
-
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
@@ -223,6 +211,29 @@ namespace TicketMaster.Services
         {
             var roles = await _context.Roles.ToListAsync();
             return _mapper.Map<IList<RoleDTO>>(roles);
+        }
+
+        public async Task AddRolesAsync(int userId, RoleUpdateDTO roleDto)
+        {
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId, includedCollections: ["Roles"]);
+            if (user == null) throw new KeyNotFoundException("User not found.");
+
+            if (roleDto.RoleIds != null && roleDto.RoleIds.Any())
+            {
+                user.Roles.Clear();
+
+                foreach (var roleId in roleDto.RoleIds)
+                {
+                    var existingRole = await _context.Roles.FirstOrDefaultAsync(r => r.Id == roleId);
+                    if (existingRole != null)
+                    {
+                        user.Roles.Add(existingRole);
+                    }
+                }
+            }
+
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
         }
     }
 }

@@ -95,6 +95,20 @@ namespace TicketMaster.Controllers
             catch (Exception e) { return BadRequest(e.Message); }
         }
 
+        [HttpPut("{userId}/role")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SetRole(int userId, [FromBody] RoleUpdateDTO roleDto)
+        {
+            try
+            {
+                await _userService.AddRolesAsync(userId, roleDto);
+                return Ok();
+            }
+            catch (UnauthorizedAccessException e) { return Unauthorized(e.Message); }
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
+
 
         [HttpGet("address")]
         public async Task<ActionResult<AddressGetDTO>> GetAddress()

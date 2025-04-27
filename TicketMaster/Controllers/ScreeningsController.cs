@@ -98,5 +98,6 @@ namespace TicketMaster.Controllers
             await screeningService.DeleteScreeningAsync(id);
             return NoContent();
         }
+
     }
 }
