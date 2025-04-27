@@ -18,7 +18,12 @@ public class RoomProfile : Profile
         CreateMap<Screening, RoomScreeningListDTO>();
 
         // post
-        CreateMap<RoomCreateDTO, Room>();
+        CreateMap<RoomCreateDTO, Room>()
+            .ForMember(dest => dest.Description, opt => opt.PreCondition(src => src.Description != null))
+            .ForMember(dest => dest.MaxSeatRow, opt => opt.PreCondition(src => src.MaxSeatRow != null))
+            .ForMember(dest => dest.MaxSeatColumn, opt => opt.PreCondition(src => src.MaxSeatColumn != null))
+            .ForMember(dest => dest.ComfortLevel, opt => opt.PreCondition(src => src.ComfortLevel != null))
+            .ForMember(dest => dest.DisabilityFriendly, opt => opt.PreCondition(src => src.DisabilityFriendly != null));
 
         // put
         CreateMap<RoomUpdateDTO, Room>()
@@ -29,8 +34,7 @@ public class RoomProfile : Profile
             .ForMember(r => r.MaxSeatColumn, opt => opt.PreCondition(dto => dto.MaxSeatColumn != null))
             .ForMember(r => r.Capacity, opt => opt.PreCondition(dto => dto.Capacity != null))
             .ForMember(r => r.DisabilityFriendly, opt => opt.PreCondition(dto => dto.DisabilityFriendly != null))
-            .ForMember(r => r.ComfortLevel, opt => opt.PreCondition(dto => dto.ComfortLevel != null))
-            .ForMember(r => r.ConstructedAt, opt => opt.PreCondition(dto => dto.ConstructedAt != null));
+            .ForMember(r => r.ComfortLevel, opt => opt.PreCondition(dto => dto.ComfortLevel != null));
     }
 }
 
