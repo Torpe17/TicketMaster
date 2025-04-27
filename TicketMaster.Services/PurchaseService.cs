@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -17,7 +19,7 @@ namespace TicketMaster.Services
         Task<List<PurchaseGetDTO>> GetPurchasesAsync();
         Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId);
         Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId);
-        Task CreatePurchase(PurchasePostDTO purchaseDto);
+        Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId);
         Task DeletePurchase(int purchaseId);
     }
     public class PurchaseService : IPurchaseService
@@ -57,13 +59,40 @@ namespace TicketMaster.Services
             return purchase;
         }
         
-
-        public async Task CreatePurchase(PurchasePostDTO purchaseDto)
+        public async Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId)
         {
             var purchase = _mapper.Map<Purchase>(purchaseDto);
+
+            
+
+            if (isAuthenticated)
+            {
+                if (userId == null) throw new Exception("User logged in but doesn't have userId");
+                var user = await _unitOfWork.UserRepository.GetByIdAsync((int)userId, includedCollections: ["Roles"]);
+                if (user == null) throw new KeyNotFoundException("User logged in but can not found by userId");
+
+                if (user.Roles.Any(x => x.Name == "Cashier"))
+                {
+                    purchase.UserId = purchaseDto.UserId;
+                }
+                else if (user.Roles.Any(x => x.Name == "Customer"))
+                {
+                    purchase.UserId = user.Id;
+                }
+                else throw new AuthenticationException("Only Cashier and Customers can purchase");
+                    purchase.Email = null;
+                purchase.PhoneNumber = null;
+            }
+            else
+            {
+                if (purchaseDto.Email == null || purchaseDto.Email == string.Empty || purchaseDto.PhoneNumber ==null || purchaseDto.PhoneNumber == string.Empty)
+                    throw new ArgumentException("Email and phone number are required");
+                purchase.UserId = null;
+            }
+
+
             purchase.Tickets.Clear();
             purchase.PurchaseDate = DateTime.UtcNow;
-
             var transaction = _appDbContext.Database.BeginTransaction();
 
             await _unitOfWork.PurchaseRepository.InsertAsync(purchase);
