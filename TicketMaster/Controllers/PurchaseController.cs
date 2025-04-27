@@ -85,7 +85,7 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Customer")]
     public async Task<ActionResult<IEnumerable<PurchaseGetDTO>>> GetOwnPurchases()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -131,7 +131,7 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Authorize(Roles = "Admin, User, Cashier")]
+    [Authorize(Roles = "Admin, Customer, Cashier")]
     public async Task<ActionResult<PurchaseGetByIdDTO>> GetPurchaseById(int purchaseId)
     {
         try
