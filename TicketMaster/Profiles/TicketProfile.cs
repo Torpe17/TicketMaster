@@ -25,6 +25,8 @@ namespace TicketMaster.Profiles
                 .ForMember(e => e.PurchaseId, opt => opt.PreCondition(dto => dto.SetPurchaseId == true));
 
             CreateMap<TicketPostDTO, Ticket>();
+
+            CreateMap<TicketForPurchasePostDTO, Ticket>();
         }
     }
 }

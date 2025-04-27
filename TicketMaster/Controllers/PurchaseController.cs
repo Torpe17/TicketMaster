@@ -175,6 +175,10 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
             await purchaseService.CreatePurchase(purchase);
             return Created();
         }
+        catch (KeyNotFoundException e)
+        {
+            return StatusCode(404, e.Message);
+        }
         catch (DbException db)
         {
             logger.LogError(db, $"DatabaseException occured while creating Purchase.\nERROR MESSAGE: {db.Message}\nINNER MESSAGE: {db.InnerException?.Message}");

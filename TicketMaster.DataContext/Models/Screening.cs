@@ -8,5 +8,6 @@
         public DateTime Date { get; set; }
         public Film Film { get; set; }
         public List<Ticket> Tickets { get; set; }
+        public double DefaultTicketPrice { get; set; }
     }
 }

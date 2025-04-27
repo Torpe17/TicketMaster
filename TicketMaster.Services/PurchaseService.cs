@@ -60,8 +60,31 @@ namespace TicketMaster.Services
 
         public async Task CreatePurchase(PurchasePostDTO purchaseDto)
         {
-            await _unitOfWork.PurchaseRepository.InsertAsync(_mapper.Map<Purchase>(purchaseDto));
+            var purchase = _mapper.Map<Purchase>(purchaseDto);
+            purchase.Tickets.Clear();
+            purchase.PurchaseDate = DateTime.UtcNow;
+
+            var transaction = _appDbContext.Database.BeginTransaction();
+
+            await _unitOfWork.PurchaseRepository.InsertAsync(purchase);
             await _unitOfWork.SaveAsync();
+
+            foreach (var dto in purchaseDto.Tickets)
+            {
+                var screening = await _unitOfWork.ScreeningRepository.GetByIdAsync(dto.ScreeningId);
+                if(screening == null)
+                {
+                    transaction.Rollback();
+                    throw new KeyNotFoundException($"Screening with id({dto.ScreeningId}) not found. Purchase failed.");
+                }
+                var ticket = _mapper.Map<Ticket>(dto);
+                ticket.PurchaseId = purchase.Id;
+                ticket.Price = screening.DefaultTicketPrice;
+
+                await _unitOfWork.TicketRepository.InsertAsync(ticket);
+            }
+
+            transaction.Commit();
         }
 
         public async Task DeletePurchase(int purchaseId)
