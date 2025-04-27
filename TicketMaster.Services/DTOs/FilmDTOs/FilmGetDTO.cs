@@ -16,6 +16,5 @@ namespace TicketMaster.Services.DTOs
         public int Length { get; set; }
         public string Description { get; set; }
         public int? AgeRating { get; set; }
-        //public List<Screening>? Screenings { get; set; }  //TODO!!! : Change to ScreeningGetDTO
-    }
+        
 }
