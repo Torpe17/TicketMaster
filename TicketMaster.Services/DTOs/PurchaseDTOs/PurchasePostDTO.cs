@@ -1,3 +1,5 @@
+using TicketMaster.Services.DTOs.TicketDTOs;
+
 namespace TicketMaster.Services.DTOs.PurchaseDTOs;
 
 public class PurchasePostDTO
