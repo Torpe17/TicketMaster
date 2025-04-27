@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
@@ -21,6 +22,7 @@ namespace TicketMaster.Services
         Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId);
         Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId);
         Task DeletePurchase(int purchaseId);
+        Task<bool> CanUserDeletePurchaseAsync(int purchaseId, int userId, bool isAdminOrCashier);
     }
     public class PurchaseService : IPurchaseService
     {
@@ -53,7 +55,8 @@ namespace TicketMaster.Services
         public async Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId)
         {
             if (purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
-            var purchase = _mapper.Map<PurchaseGetByIdDTO>(await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId));
+            await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId, includedCollections: ["Tickets"]);
+            var purchase = _mapper.Map<PurchaseGetByIdDTO>(await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId, includedReferences: ["User"]));
             if (purchase == null) throw new KeyNotFoundException();
 
             return purchase;
@@ -119,9 +122,23 @@ namespace TicketMaster.Services
         public async Task DeletePurchase(int purchaseId)
         {
             if(purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
-            var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId);
+            var purchase = _appDbContext.Purchases.Include(p => p.Tickets).ThenInclude(t => t.Screening).Include(p => p.User).FirstOrDefault(p => p.Id == purchaseId);
+            var firstTicket = purchase.Tickets.FirstOrDefault();
+            if (firstTicket?.Screening == null) { throw new InvalidOperationException("No valid tickets or screening found for this purchase."); }
+
+            TimeSpan diff = firstTicket.Screening.Date - DateTime.UtcNow;
+            if (diff.TotalHours < 4) { throw new InvalidOperationException("You cannot delete tickets 4 hours before screening."); }
             await _unitOfWork.PurchaseRepository.DeleteByIdAsync(purchaseId);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<bool> CanUserDeletePurchaseAsync(int purchaseId, int userId, bool isAdminOrCashier)
+        {
+            var purchase = await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId);
+            if (purchase == null) throw new KeyNotFoundException($"Purchase with id({purchaseId}) not found.");
+            if (isAdminOrCashier) { return true; }
+
+            return purchase.UserId == userId;
         }
     }
 }
