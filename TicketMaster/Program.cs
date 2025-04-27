@@ -51,6 +51,7 @@ namespace TicketMaster
             builder.Services.AddScoped<IPurchaseService, PurchaseService>();
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IScreeningService, ScreeningService>();
+            builder.Services.AddScoped<ITicketService, TicketService>();
 
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
