@@ -21,6 +21,7 @@ namespace TicketMaster.Services
         Task PutTicketAsync(int ticketId, TicketPutDTO dto);
         Task PostTicketAsync(TicketPostDTO dto);
         Task DeleteTicketAsync(int id);
+        Task<bool> Validate(int ticketId);
     }
     public class TicketService : ITicketService
     {
@@ -135,6 +136,23 @@ namespace TicketMaster.Services
                 }
             }
 
+        }
+
+        public async Task<bool> Validate(int ticketId)
+        {
+            Ticket ticket = await unitOfWork.TicketRepository.GetByIdAsync(ticketId);
+            if (ticket == null)
+            {
+                throw new KeyNotFoundException("Ticket does not exists");
+            }
+            if (ticket.IsValidated)
+            {
+                throw new ArgumentException("This ticket was already validated");
+            }
+            Console.WriteLine(ticket.IsValidated);
+            ticket.IsValidated = true;
+            await unitOfWork.SaveAsync();
+            return true;
         }
 
         private bool TicketExists(int id)
