@@ -25,15 +25,23 @@ namespace TicketMaster.Services
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         private AppDbContext _appDbContext;
+
+        public PurchaseService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext appDbContext)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _appDbContext = appDbContext;
+        }
+
         public async Task<List<PurchaseGetDTO>> GetPurchasesAsync()
         {
-            return _mapper.Map<List<PurchaseGetDTO>>(await _unitOfWork.PurchaseRepository.GetAsync(includedProperties: ["Tickets"]));
+            return _mapper.Map<List<PurchaseGetDTO>>(await _unitOfWork.PurchaseRepository.GetAsync(includedProperties: ["Tickets", "User"]));
         }
 
         public async Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId)
         {
             if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId));
-            var purchasesByUserId = _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases.Where(p => p.UserId == userId).ToListAsync());
+            var purchasesByUserId = _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases.Include(p => p.Tickets).Include(p => p.User).Where(p => p.UserId == userId).ToListAsync());
             if (purchasesByUserId == null) throw new KeyNotFoundException();
 
             return purchasesByUserId;
