@@ -56,7 +56,9 @@ public class RoomService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext dbC
 
     public async Task AddRoomAsync(RoomCreateDTO dto)
     {
-        await unitOfWork.RoomRepository.InsertAsync(mapper.Map<Room>(dto));
+        var room = mapper.Map<Room>(dto);
+        room.ConstructedAt = DateTime.UtcNow;
+        await unitOfWork.RoomRepository.InsertAsync(room);
         await unitOfWork.SaveAsync();
     }
 
