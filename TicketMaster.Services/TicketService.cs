@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services.DTOs;
@@ -25,10 +26,12 @@ namespace TicketMaster.Services
     {
         private UnitOfWork unitOfWork;
         private IMapper mapper;
-        public TicketService(UnitOfWork _unitOfWork, IMapper _mapper)
+        private AppDbContext context;
+        public TicketService(UnitOfWork _unitOfWork, IMapper _mapper, AppDbContext _context)
         {
             unitOfWork = _unitOfWork;
             mapper = _mapper;
+            context = _context;
         }
         public async Task DeleteTicketAsync(int id)
         {
@@ -38,24 +41,28 @@ namespace TicketMaster.Services
 
         public async Task<TicketGetDTO> GetTicketByIdAsync(int id)
         {
-            var ticket = await unitOfWork.TicketRepository.GetByIdAsync(id);
+            var ticket = await context.Tickets
+                .Where(ticket => ticket.Id == id)
+                .Include(f => f.Purchase)
+                .Include(f => f.Screening)
+                .ThenInclude(f => f.Film)
+                .FirstOrDefaultAsync();
 
             if (ticket == null)
             {
                 throw new KeyNotFoundException($"Ticket (id: {id}) not found");
             }
 
-            await unitOfWork.TicketRepository.GetByIdAsync(id, includedReferences: ["Purchase"]);
-            await unitOfWork.TicketRepository.GetByIdAsync(id, includedReferences: ["Screening"]);
-
             return mapper.Map<TicketGetDTO>(ticket);
         }
 
         public async Task<List<TicketGetDTO>> GetTicketsAsync()
         {
-            var tickets = await unitOfWork.TicketRepository.GetAsync(
-                includedProperties: ["Purchase", "Screening"]
-                );
+            var tickets = await context.Tickets
+                .Include(f => f.Purchase)
+                .Include(f => f.Screening)
+                .ThenInclude(f => f.Film)
+                .ToListAsync();
             return mapper.Map<List<TicketGetDTO>>(tickets);
         }
 

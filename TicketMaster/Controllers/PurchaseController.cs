@@ -165,6 +165,8 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     }
 
     [HttpPost("purchase")]
+    [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(PurchaseGetDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [AllowAnonymous]
@@ -172,12 +174,19 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     {
         try
         {
-            await purchaseService.CreatePurchase(purchase);
+            bool isAuthenticated = User.Identity.IsAuthenticated;
+            int? userId = null;
+            if (isAuthenticated) userId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+            await purchaseService.CreatePurchase(purchase, isAuthenticated, userId);
             return Created();
         }
         catch (KeyNotFoundException e)
         {
             return StatusCode(404, e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            return StatusCode(400, e.Message);
         }
         catch (DbException db)
         {
@@ -190,7 +199,7 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
             return StatusCode(500, "An unexpected error occured.");
         }
     }
-    
+
     [HttpDelete("purchase/{purchaseId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
