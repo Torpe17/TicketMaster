@@ -204,11 +204,18 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin,Cashier")]
+    [Authorize]
     public async Task<IActionResult> Delete(int purchaseId)
     {
         try
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId)) { return BadRequest("Invalid user ID format."); }
+            var isAdminOrCashier = User.IsInRole("Admin") || User.IsInRole("Cashier");
+            
+            bool isAllowed = await purchaseService.CanUserDeletePurchaseAsync(purchaseId, userId, isAdminOrCashier);
+            if (!isAllowed) { return Forbid(); }
+            
             await purchaseService.DeletePurchase(purchaseId);
             return NoContent();
         }
