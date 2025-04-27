@@ -15,5 +15,6 @@ namespace TicketMaster.Services.DTOs.ScreeningDTOs
         public DateTime Date { get; set; }
         public string FilmName { get; set; }
         public int TicketCount { get; set; }
+        public double DefaultTicketPrice { get; set; }
     }
 }

@@ -25,10 +25,12 @@ namespace TicketMaster.Services
     {
         private UnitOfWork unitOfWork;
         private IMapper mapper;
+        
         public ScreeningService(UnitOfWork _unitOfWork, IMapper _mapper) 
         {
             unitOfWork = _unitOfWork;
             mapper = _mapper;
+
         }
         public async Task DeleteScreeningAsync(int id)
         {

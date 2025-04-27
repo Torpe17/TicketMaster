@@ -12,5 +12,6 @@ namespace TicketMaster.Services.DTOs.ScreeningDTOs
         public int? FilmId { get; set; }
         public int? RoomId { get; set; }
         public DateTime? Date { get; set; }
+        public double? DefaultTicketPrice { get; set; }
     }
 }
