@@ -49,6 +49,7 @@ namespace TicketMaster
             builder.Services.AddScoped<IFilmService, FilmService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+            builder.Services.AddScoped<IRoomService, RoomService>();
 
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims

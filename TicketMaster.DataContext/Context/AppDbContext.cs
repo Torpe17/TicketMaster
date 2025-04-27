@@ -26,6 +26,8 @@ namespace TicketMaster.DataContext.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            /* USER ENTITY*/
+            // User -> Address (One-to-Many)
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Address)
                 .WithOne(a => a.User)
@@ -42,6 +44,26 @@ namespace TicketMaster.DataContext.Context
             // Purchase PurchaseDate value generation
             modelBuilder.Entity<Purchase>()
                 .Property(p => p.PurchaseDate)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValue(DateTime.UtcNow);
+            
+            
+            /* ROOM ENTITY*/
+            // Room -> RoomType (Many-to-One)
+            modelBuilder.Entity<Room>()
+                .HasOne(r => r.RoomType)
+                .WithMany()
+                .HasForeignKey(r => r.RoomTypeId);
+            
+            // Room -> Screening (One-to-Many)
+            modelBuilder.Entity<Room>()
+                .HasMany(r => r.Screenings)
+                .WithOne()
+                .HasForeignKey(r => r.RoomId);
+            
+            // Room ConstructedAt value generation
+            modelBuilder.Entity<Room>()
+                .Property(r => r.ConstructedAt)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValue(DateTime.UtcNow);
             
