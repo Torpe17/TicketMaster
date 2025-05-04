@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Microsoft.EntityFrameworkCore;
 using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
@@ -41,7 +42,14 @@ namespace TicketMaster.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<FilmGetDTO>> GetFilmByID(int id)
         {
-            return await _filmService.GetByIdAsync(id);
+            try
+            {
+                return await _filmService.GetByIdAsync(id);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
 
