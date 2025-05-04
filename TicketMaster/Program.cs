@@ -29,7 +29,7 @@ namespace TicketMaster
                 // temporarily until launchSettings is solved
                 // currently it is fetched from appsettings
                 // the connection string alias needs to be changed according to dev
-                var conString = builder.Configuration.GetConnectionString("TicketMasterDatabase") ??
+                var conString = builder.Configuration.GetConnectionString("BarnusDatabase") ??
                                 throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
                 options.UseSqlServer(conString);
                 //options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));
@@ -118,6 +118,17 @@ namespace TicketMaster
                 }});
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:5173") // vagy amiről jön a kérés
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
+            });
+
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             var app = builder.Build();
@@ -129,6 +140,8 @@ namespace TicketMaster
                 app.UseSwaggerUI();
                 app.MapOpenApi();
             }
+
+            app.UseCors("AllowLocalhost");
 
             app.UseHttpsRedirection();
             
