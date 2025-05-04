@@ -10,6 +10,7 @@ using TicketMaster.Services.DTOs;
 using TicketMaster.Services.DTOs.FilmDTOs;
 using TicketMaster.DataContext.UnitsOfWork;
 using AutoMapper;
+using TicketMaster.Services.DTOs.ScreeningDTOs;
 
 namespace TicketMaster.Services
 {
@@ -17,6 +18,7 @@ namespace TicketMaster.Services
     {
         Task<List<FilmGetDTO>> GetAllAsync();
         Task<FilmGetDTO> GetByIdAsync(int id);
+        Task<List<ScreeningGetDTO>> GetScreeningByFilmIdAsync(int filmId);
         Task<List<FilmGetDTO>> GetByNameAsync(string name);
         Task<List<FilmGetDTO>> GetByDateAsync(string date);
         Task<List<FilmGetDTO>> GetAfterDateAsync(string date);
@@ -27,11 +29,24 @@ namespace TicketMaster.Services
     public class FilmService : IFilmService
     {
         private UnitOfWork _unitOfWork;
+        private AppDbContext _context;
         private IMapper _mapper;
-        public FilmService(UnitOfWork unitOfWork, IMapper mapper)
+        public FilmService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _context = context;
+        }
+
+        public async Task<List<ScreeningGetDTO>> GetScreeningByFilmIdAsync(int filmId)
+        {
+            var film = await _context.Films.Include(x => x.Screenings).ThenInclude(x => x.Room).FirstOrDefaultAsync(x => x.Id == filmId);
+            //var film = await _unitOfWork.FilmRepository.GetByIdAsync(filmId, includedCollections: ["Screenings"], includedReferences: ["Room"]);
+            if (film == null)
+            {
+                throw new KeyNotFoundException($"Film (id: {filmId}) not found");
+            }
+            return _mapper.Map<List<ScreeningGetDTO>>(film.Screenings);
         }
 
         public async Task AddFilmAsync(FilmPostDTO film)

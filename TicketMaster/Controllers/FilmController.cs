@@ -13,6 +13,7 @@ using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services;
 using TicketMaster.Services.DTOs;
 using TicketMaster.Services.DTOs.FilmDTOs;
+using TicketMaster.Services.DTOs.ScreeningDTOs;
 
 namespace TicketMaster.Controllers
 {
@@ -41,6 +42,22 @@ namespace TicketMaster.Controllers
         public async Task<ActionResult<FilmGetDTO>> GetFilmByID(int id)
         {
             return await _filmService.GetByIdAsync(id);
+        }
+
+
+        [HttpGet("{filmId}/screenings")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<ScreeningGetDTO>>> GetScreeningsByFilmId(int filmId)
+        {
+            try
+            {
+                return await _filmService.GetScreeningByFilmIdAsync(filmId);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+
         }
 
         [HttpGet("on/{date}")]

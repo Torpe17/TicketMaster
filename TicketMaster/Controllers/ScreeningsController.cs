@@ -38,7 +38,8 @@ namespace TicketMaster.Controllers
 
         // GET: api/Screenings/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin, Cashier, Customer")]
+        //[Authorize(Roles = "Admin, Cashier, Customer")]
+        [AllowAnonymous]
         public async Task<ActionResult<ScreeningGetDTO>> GetScreening(int id)
         {
             try

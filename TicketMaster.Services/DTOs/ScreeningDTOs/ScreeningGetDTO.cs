@@ -12,6 +12,7 @@ namespace TicketMaster.Services.DTOs.ScreeningDTOs
         public int Id { get; set; }
         public int FilmId { get; set; }
         public int RoomId { get; set; }
+        public string RoomName { get; set; }
         public DateTime Date { get; set; }
         public string FilmName { get; set; }
         public int TicketCount { get; set; }

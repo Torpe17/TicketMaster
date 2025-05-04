@@ -54,8 +54,13 @@ namespace TicketMaster.DataContext.Context
                 .HasMany(r => r.Screenings)
                 .WithOne()
                 .HasForeignKey(r => r.RoomId);
-            
-            
+
+            modelBuilder.Entity<Screening>()
+                .HasOne(s => s.Room)
+                .WithMany(s => s.Screenings)
+                .HasForeignKey(s => s.RoomId);
+
+
             base.OnModelCreating(modelBuilder);
         }
         // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
