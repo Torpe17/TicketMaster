@@ -7,5 +7,6 @@ public class PurchaseGetDTO
     public string? UserName { get; set; }
     public double TotalPrice { get; set; }
     public int? TicketCount { get; set; }
+    public string TicketFilmName { get; set; }
     public DateTime PurchaseDate { get; set; }
 }

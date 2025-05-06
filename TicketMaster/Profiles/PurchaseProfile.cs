@@ -11,7 +11,8 @@ public class PurchaseProfile : Profile
     {
         // get
         CreateMap<Purchase, PurchaseGetDTO>()
-            .ForMember(dest => dest.TicketCount, opt => opt.MapFrom(src => src.Tickets.Count));
+            .ForMember(dest => dest.TicketCount, opt => opt.MapFrom(src => src.Tickets.Count))
+            .ForMember(dest => dest.TicketFilmName, opt => opt.MapFrom(src => src.Tickets.FirstOrDefault().Screening.Film.Title));
 
         // getbyid
         CreateMap<Purchase, PurchaseGetByIdDTO>();
