@@ -186,5 +186,18 @@ namespace TicketMaster.Controllers
             var result = await _userService.GetRolesAsync();
             return Ok(result);
         }
+
+        [HttpPut("update-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateProfilePassword([FromBody] UserUpdatePasswordDTO userDto)
+        {
+            try
+            {
+                var result = await _userService.UpdateUserPasswordAsync(userDto);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException e) { return NotFound(e.Message); }
+            catch (Exception e) { return BadRequest(e.Message); }
+        }
     }
 }
