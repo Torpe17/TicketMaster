@@ -117,6 +117,14 @@ namespace TicketMaster.Controllers
         {
             try
             {
+                if (film.Picture != null && film.Picture.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await film.Picture.CopyToAsync(memoryStream);
+                        film.PictureBytes = memoryStream.ToArray();
+                    }
+                }
                 await _filmService.AddFilmAsync(film);
             }
             catch(KeyNotFoundException ex)

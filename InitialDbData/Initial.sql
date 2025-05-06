@@ -174,21 +174,21 @@ INSERT INTO RoleUser (UsersId, RolesId) VALUES
 (10, 3);
 
 INSERT INTO Purchases (UserId, PurchaseDate) VALUES (3, '2025-06-15 14:00:00');
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (1, 1, 1, 1, 7.00);
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (1, 1, 1, 2, 7.00);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (1, 1, 1, 1, 7.00, 0);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (1, 1, 1, 2, 7.00, 0);
 
 INSERT INTO Purchases (UserId, PurchaseDate) VALUES (4, '2025-07-22 18:30:00');
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (2, 2, 2, 3, 7.00);
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (2, 2, 2, 4, 7.00);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (2, 2, 2, 3, 7.00, 0);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (2, 2, 2, 4, 7.00, 0);
 
 INSERT INTO Purchases (UserId, PurchaseDate) VALUES (5, '2025-08-10 12:00:00');
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (3, 3, 3, 5, 7.00);
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (3, 3, 3, 6, 7.00);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (3, 3, 3, 5, 7.00, 0);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (3, 3, 3, 6, 7.00, 0);
 
 INSERT INTO Purchases (UserId, PurchaseDate) VALUES (6, '2025-06-20 16:00:00');
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (4, 4, 4, 7, 7.00);
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (4, 4, 4, 8, 7.00);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (4, 4, 4, 7, 7.00, 0);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (4, 4, 4, 8, 7.00, 0);
 
 INSERT INTO Purchases (UserId, PurchaseDate) VALUES (7, '2025-07-05 20:00:00');
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (5, 5, 5, 9, 7.00);
-INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price) VALUES (5, 5, 5, 10, 7.00);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (5, 5, 5, 9, 7.00, 0);
+INSERT INTO Tickets (ScreeningId, PurchaseId, SeatRow, SeatColumn, Price, IsValidated) VALUES (5, 5, 5, 10, 7.00, 0);

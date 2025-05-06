@@ -40,7 +40,7 @@ namespace TicketMaster.Services
 
         public async Task<List<ScreeningGetDTO>> GetScreeningByFilmIdAsync(int filmId)
         {
-            var film = await _context.Films.Include(x => x.Screenings).ThenInclude(x => x.Room).FirstOrDefaultAsync(x => x.Id == filmId);
+            var film = await _context.Films.Include(x => x.Screenings).ThenInclude(x => x.RoomId).FirstOrDefaultAsync(x => x.Id == filmId);
             //var film = await _unitOfWork.FilmRepository.GetByIdAsync(filmId, includedCollections: ["Screenings"], includedReferences: ["Room"]);
             if (film == null)
             {
@@ -61,6 +61,11 @@ namespace TicketMaster.Services
                 throw new ArgumentException("Title, Director, Genre and Description must be filled");
 
             Film newFilm = _mapper.Map<Film>(film);
+
+            if (film.PictureBytes != null)
+            {
+                newFilm.Picture = film.PictureBytes;
+            }
 
             await _unitOfWork.FilmRepository.InsertAsync(newFilm);
             await _unitOfWork.SaveAsync();
@@ -86,7 +91,19 @@ namespace TicketMaster.Services
             var films = await _unitOfWork.FilmRepository.GetAsync(
                  //includedProperties: ["Screenings"]
                  );
-            return _mapper.Map<List<FilmGetDTO>>(films);
+
+            var filmDtos = films.Select(film =>
+            {
+                var dto = _mapper.Map<FilmGetDTO>(film);
+                if (film.Picture != null && film.Picture.Length > 0)
+                {
+                    dto.PictureBase64 = Convert.ToBase64String(film.Picture);
+                }
+
+                return dto;
+            }).ToList();
+
+            return filmDtos;
         }
 
         public async Task<List<FilmGetDTO>> GetByDateAsync(string date)
@@ -108,7 +125,11 @@ namespace TicketMaster.Services
             {
                 throw new KeyNotFoundException($"Film (id: {id}) not found");
             }
-
+            var dto = _mapper.Map<FilmGetDTO>(film);
+            if (film.Picture != null)
+            {
+                dto.PictureBase64 = Convert.ToBase64String(film.Picture);
+            }
             return _mapper.Map<FilmGetDTO>(film);
         }
 

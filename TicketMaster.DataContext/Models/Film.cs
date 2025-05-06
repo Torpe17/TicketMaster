@@ -1,4 +1,6 @@
-﻿namespace TicketMaster.DataContext.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TicketMaster.DataContext.Models
 {
     public class Film
     {
@@ -10,5 +12,7 @@
         public string Description { get; set; }
         public int? AgeRating { get; set; }
         public List<Screening> Screenings { get; set; } = new();
+        [Column(TypeName = "varbinary(max)")]
+        public byte[]? Picture { get; set; }
     }
 }

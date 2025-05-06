@@ -9,7 +9,8 @@ namespace TicketMaster.Profiles
     {
         public FilmProfile()
         {
-            CreateMap<Film, FilmGetDTO>();
+            CreateMap<Film, FilmGetDTO>().ForMember(dest => dest.PictureBase64, opt => opt.MapFrom(src =>
+        src.Picture != null ? Convert.ToBase64String(src.Picture) : null)); ;
 
           //  CreateMap<Screening, ScreeningGetDTO>()
                // .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Screening.Id));
@@ -18,7 +19,7 @@ namespace TicketMaster.Profiles
                // .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Screening.Date));
                // .ForMember(dest => dest.TicketCount, opt => opt.MapFrom(src => src.Screening.Tickets.Count));
 
-            CreateMap<FilmPostDTO, Film>();
+            CreateMap<FilmPostDTO, Film>().ForMember(dest => dest.Picture, opt => opt.MapFrom(src => src.PictureBytes));
 
             CreateMap<FilmPutDTO, Film>()
                 .ForMember(e => e.Title, opt => opt.PreCondition(dto => dto.Title != null))
