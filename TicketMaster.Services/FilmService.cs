@@ -83,6 +83,17 @@ namespace TicketMaster.Services
 
             DateTime dateTime = DateTime.Parse(date);
             var filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date >= dateTime)).ToList();
+
+            var result = _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+
+            for (int i = 0; i < filmsOnDate.Count; i++)
+            {
+                if (filmsOnDate[i].Picture != null && filmsOnDate[i].Picture.Length > 0)
+                {
+                    result[i].PictureBase64 = Convert.ToBase64String(filmsOnDate[i].Picture);
+                }
+            }
+
             return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
         }
 
@@ -155,6 +166,27 @@ namespace TicketMaster.Services
                 throw new ArgumentException("Length can't be negative or 0 length");
             if ((film.AgeRating < 0 || film.AgeRating > 18) && film.SetAgeRating)
                 throw new ArgumentException("Age rating must be between 0 and 18 including 0 and 18");
+
+            if (film.PictureBase64 != null)
+            {
+                try
+                {
+                    // Remove data URI prefix if present
+                    var base64Data = film.PictureBase64.StartsWith("data:image")
+                        ? film.PictureBase64.Split(',')[1]
+                        : film.PictureBase64;
+
+                    f.Picture = Convert.FromBase64String(base64Data);
+                }
+                catch (FormatException)
+                {
+                    throw new ArgumentException("Invalid image format. Please provide a valid Base64 string.");
+                }
+            }
+            else if (film.RemovePicture)
+            {
+                f.Picture = null;
+            }
 
             _mapper.Map(film, f);
 
