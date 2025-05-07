@@ -140,7 +140,7 @@ namespace TicketMaster.Services
 
         public async Task<bool> Validate(int ticketId)
         {
-            Ticket ticket = await unitOfWork.TicketRepository.GetByIdAsync(ticketId);
+            Ticket? ticket = await unitOfWork.TicketRepository.GetByIdAsync(ticketId);
             if (ticket == null)
             {
                 throw new KeyNotFoundException("Ticket does not exists");
@@ -149,7 +149,6 @@ namespace TicketMaster.Services
             {
                 throw new ArgumentException("This ticket was already validated");
             }
-            Console.WriteLine(ticket.IsValidated);
             ticket.IsValidated = true;
             await unitOfWork.SaveAsync();
             return true;
