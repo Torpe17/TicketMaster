@@ -15,5 +15,7 @@ namespace TicketMaster.Services.DTOs.FilmDTOs
         public string? Description { get; set; }
         public int? AgeRating { get; set; }
         public bool SetAgeRating { get; set; } = false;
+        public string? PictureBase64 { get; set; }
+        public bool RemovePicture { get; set; }
     }
 }

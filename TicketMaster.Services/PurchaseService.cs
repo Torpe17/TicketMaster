@@ -39,7 +39,12 @@ namespace TicketMaster.Services
 
         public async Task<List<PurchaseGetDTO>> GetPurchasesAsync()
         {
-            return _mapper.Map<List<PurchaseGetDTO>>(await _unitOfWork.PurchaseRepository.GetAsync(includedProperties: ["Tickets", "User"]));
+            return _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases
+                .Include(p => p.Tickets)
+                .ThenInclude(t => t.Screening)
+                .ThenInclude(s => s.Film)
+                .Include(p => p.User)
+                .ToListAsync());
         }
 
         public async Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId)

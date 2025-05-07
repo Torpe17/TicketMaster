@@ -33,6 +33,8 @@ namespace TicketMaster.Services
         Task<AddressGetDTO> UpdateAddressAsync(int userId, AddressPutDTO addressDto);
         Task<IList<RoleDTO>> GetRolesAsync();
         Task DeleteUser(int id);
+
+        Task<UserDTO> UpdateUserPasswordAsync(UserUpdatePasswordDTO UserDTO);
     }
     public class UserService :IUserService
     {
@@ -234,6 +236,23 @@ namespace TicketMaster.Services
 
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<UserDTO> UpdateUserPasswordAsync(UserUpdatePasswordDTO UserDTO)
+        {
+            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(x => x.Email == UserDTO.Email);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("This user does not exists.");
+            }
+            if (BCrypt.Net.BCrypt.Verify(UserDTO.Password, user.PasswordHash))
+            {
+                throw new Exception("Password can't be the old password");
+            }
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(UserDTO.Password);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<UserDTO>(user);
         }
     }
 }
