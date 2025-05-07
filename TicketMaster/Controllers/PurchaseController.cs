@@ -132,7 +132,7 @@ public class PurchaseController(IPurchaseService purchaseService, ILogger<Purcha
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Authorize(Roles = "Admin, Customer, Cashier")]
-    public async Task<ActionResult<PurchaseGetByIdDTO>> GetPurchaseById(int purchaseId)
+    public async Task<ActionResult<PurchaseGetDTO>> GetPurchaseById(int purchaseId)
     {
         try
         {

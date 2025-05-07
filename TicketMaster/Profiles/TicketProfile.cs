@@ -27,6 +27,8 @@ namespace TicketMaster.Profiles
             CreateMap<TicketPostDTO, Ticket>();
 
             CreateMap<TicketForPurchasePostDTO, Ticket>();
+
+            CreateMap<TicketForPurchasePostDTO, TicketPostDTO>();
         }
     }
 }
