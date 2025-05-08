@@ -51,6 +51,9 @@ namespace TicketMaster.Services
             await _unitOfWork.AddressRepository.InsertAsync(newAddress);
             await _unitOfWork.SaveAsync();
 
+            user.AddressId = newAddress.Id;
+            await _unitOfWork.SaveAsync();
+
             return _mapper.Map<AddressGetDTO>(newAddress);
         }
 
