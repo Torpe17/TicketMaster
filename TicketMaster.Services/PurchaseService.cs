@@ -12,14 +12,15 @@ using TicketMaster.DataContext.Context;
 using TicketMaster.DataContext.Models;
 using TicketMaster.DataContext.UnitsOfWork;
 using TicketMaster.Services.DTOs.PurchaseDTOs;
+using TicketMaster.Services.DTOs.TicketDTOs;
 
 namespace TicketMaster.Services
 {
     public interface IPurchaseService
     {
         Task<List<PurchaseGetDTO>> GetPurchasesAsync();
-        Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId);
-        Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId);
+        Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId);
+        Task<PurchaseGetDTO> GetPurchaseByIdAsync(int purchaseId);
         Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId);
         Task DeletePurchase(int purchaseId);
         Task<bool> CanUserDeletePurchaseAsync(int purchaseId, int userId, bool isAdminOrCashier);
@@ -29,39 +30,51 @@ namespace TicketMaster.Services
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         private AppDbContext _appDbContext;
+        private ITicketService _ticketService;
 
-        public PurchaseService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext appDbContext)
+        public PurchaseService(UnitOfWork unitOfWork, IMapper mapper, AppDbContext appDbContext, ITicketService ticketService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _appDbContext = appDbContext;
+            _ticketService = ticketService;
         }
 
         public async Task<List<PurchaseGetDTO>> GetPurchasesAsync()
         {
             return _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases
                 .Include(p => p.Tickets)
-                .ThenInclude(t => t.Screening)
-                .ThenInclude(s => s.Film)
+                    .ThenInclude(t => t.Screening)
+                        .ThenInclude(s => s.Film)
                 .Include(p => p.User)
                 .ToListAsync());
         }
 
-        public async Task<List<PurchaseGetByIdDTO>> GetPurchasesByUserIdAsync(int userId)
+        public async Task<List<PurchaseGetDTO>> GetPurchasesByUserIdAsync(int userId)
         {
             if (userId <= 0) throw new ArgumentOutOfRangeException(nameof(userId));
-            var purchases = _mapper.Map<List<PurchaseGetByIdDTO>>(await _appDbContext.Purchases.Include(p => p.Tickets).Include(p => p.User).Where(p => p.UserId == userId).ToListAsync());
+            var purchases = _mapper.Map<List<PurchaseGetDTO>>(await _appDbContext.Purchases
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Screening)
+                        .ThenInclude(s => s.Film)
+                .Include(p => p.User)
+                .Where(p => p.UserId == userId)
+                .ToListAsync());
             if (purchases == null) throw new KeyNotFoundException();
 
             return purchases;
         }
 
         
-        public async Task<PurchaseGetByIdDTO> GetPurchaseByIdAsync(int purchaseId)
+        public async Task<PurchaseGetDTO> GetPurchaseByIdAsync(int purchaseId)
         {
             if (purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
-            await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId, includedCollections: ["Tickets"]);
-            var purchase = _mapper.Map<PurchaseGetByIdDTO>(await _unitOfWork.PurchaseRepository.GetByIdAsync(purchaseId, includedReferences: ["User"]));
+            var purchase = _mapper.Map<PurchaseGetDTO>(await _appDbContext.Purchases
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Screening)
+                        .ThenInclude(t => t.Film)
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == purchaseId));
             if (purchase == null) throw new KeyNotFoundException();
 
             return purchase;
@@ -70,69 +83,51 @@ namespace TicketMaster.Services
         public async Task CreatePurchase(PurchasePostDTO purchaseDto, bool isAuthenticated, int? userId)
         {
             var purchase = _mapper.Map<Purchase>(purchaseDto);
-
             
-
             if (isAuthenticated)
             {
                 if (userId == null) throw new Exception("User logged in but doesn't have userId");
                 var user = await _unitOfWork.UserRepository.GetByIdAsync((int)userId, includedCollections: ["Roles"]);
                 if (user == null) throw new KeyNotFoundException("User logged in but can not found by userId");
 
-                if (user.Roles.Any(x => x.Name == "Cashier"))
-                {
-                    purchase.UserId = purchaseDto.UserId;
-                }
-                else if (user.Roles.Any(x => x.Name == "Customer"))
-                {
-                    purchase.UserId = user.Id;
-                }
+                if (user.Roles.Any(x => x.Name == "Cashier")) { purchase.UserId = purchaseDto.UserId; }
+                else if (user.Roles.Any(x => x.Name == "Customer")) { purchase.UserId = user.Id; }
                 else throw new AuthenticationException("Only Cashier and Customers can purchase");
-                    purchase.Email = null;
+                
+                purchase.Email = null;
                 purchase.PhoneNumber = null;
             }
             else
             {
-                if (purchaseDto.Email == null || purchaseDto.Email == string.Empty || purchaseDto.PhoneNumber ==null || purchaseDto.PhoneNumber == string.Empty)
-                    throw new ArgumentException("Email and phone number are required");
+                if (string.IsNullOrEmpty(purchaseDto.Email) || string.IsNullOrEmpty(purchaseDto.PhoneNumber)) throw new ArgumentException("Email and phone number are required");
                 purchase.UserId = null;
             }
-
-
-            purchase.Tickets.Clear();
             purchase.PurchaseDate = DateTime.UtcNow;
-            var transaction = _appDbContext.Database.BeginTransaction();
-
+            
+            var screening = await _unitOfWork.ScreeningRepository.GetByIdAsync(purchase.Tickets.First().ScreeningId);
+            if (screening == null) { throw new KeyNotFoundException("Screening not found"); }
+            
+            purchase.Tickets.ForEach(t => t.Price = screening.DefaultTicketPrice);
+            
             await _unitOfWork.PurchaseRepository.InsertAsync(purchase);
             await _unitOfWork.SaveAsync();
-
-            foreach (var dto in purchaseDto.Tickets)
-            {
-                var screening = await _unitOfWork.ScreeningRepository.GetByIdAsync(dto.ScreeningId);
-                if(screening == null)
-                {
-                    transaction.Rollback();
-                    throw new KeyNotFoundException($"Screening with id({dto.ScreeningId}) not found. Purchase failed.");
-                }
-                var ticket = _mapper.Map<Ticket>(dto);
-                ticket.PurchaseId = purchase.Id;
-                ticket.Price = screening.DefaultTicketPrice;
-
-                await _unitOfWork.TicketRepository.InsertAsync(ticket);
-            }
-
-            transaction.Commit();
         }
 
         public async Task DeletePurchase(int purchaseId)
         {
             if(purchaseId <= 0) throw new ArgumentOutOfRangeException(nameof(purchaseId));
-            var purchase = _appDbContext.Purchases.Include(p => p.Tickets).ThenInclude(t => t.Screening).Include(p => p.User).FirstOrDefault(p => p.Id == purchaseId);
+            var purchase = _appDbContext.Purchases
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.Screening)
+                .Include(p => p.User)
+                .FirstOrDefault(p => p.Id == purchaseId);
+            
             var firstTicket = purchase.Tickets.FirstOrDefault();
-            if (firstTicket?.Screening == null) { throw new InvalidOperationException("No valid tickets or screening found for this purchase."); }
-
-            TimeSpan diff = firstTicket.Screening.Date - DateTime.UtcNow;
-            if (diff.TotalHours < 4) { throw new InvalidOperationException("You cannot delete tickets 4 hours before screening."); }
+            if (firstTicket?.Screening != null) { }
+            {
+                TimeSpan diff = firstTicket.Screening.Date - DateTime.UtcNow;
+                if (diff.TotalHours < 4) { throw new InvalidOperationException("You cannot delete tickets 4 hours before screening."); }
+            }
             await _unitOfWork.PurchaseRepository.DeleteByIdAsync(purchaseId);
             await _unitOfWork.SaveAsync();
         }
