@@ -29,7 +29,7 @@ namespace TicketMaster
                 // temporarily until launchSettings is solved
                 // currently it is fetched from appsettings
                 // the connection string alias needs to be changed according to dev
-                var conString = builder.Configuration.GetConnectionString("BarnusDatabase") ??
+                var conString = builder.Configuration.GetConnectionString("Mark") ??
                                 throw new InvalidOperationException("Connection string 'TicketMasterDatabase' not found.");
                 options.UseSqlServer(conString);
                 //options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings:UserDatabase"));

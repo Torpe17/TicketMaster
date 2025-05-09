@@ -22,6 +22,7 @@ namespace TicketMaster.Services
         Task<List<FilmGetDTO>> GetByNameAsync(string name);
         Task<List<FilmGetDTO>> GetByDateAsync(string date);
         Task<List<FilmGetDTO>> GetAfterDateAsync(string date);
+        Task<List<FilmGetDTO>> GetByNameAndDateAsync(string name, string date, bool onDay = false);
         Task AddFilmAsync(FilmPostDTO film);
         Task UpdateFilmAsync(int id, FilmPutDTO film);
         Task DeleteFilmAsync(int id);
@@ -95,6 +96,24 @@ namespace TicketMaster.Services
             }
 
             return _mapper.Map<List<FilmGetDTO>>(filmsOnDate);
+        }
+        public async Task<List<FilmGetDTO>> GetByNameAndDateAsync(string name, string date, bool onDay = false)
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            List<Film> filmsOnDate;
+            DateTime dateTime = DateTime.Parse(date);
+            if (onDay)
+            {
+                filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date.Date == dateTime)).ToList();
+            }
+            else
+            {
+                filmsOnDate = films.Where(f => f.Screenings.Any(s => s.Date >= dateTime)).ToList();
+            }
+             
+            var filmsWithNameAndDate = filmsOnDate.Where(f => f.Title.ToLower().Contains(name.ToLower())).ToList();
+
+            return _mapper.Map<List<FilmGetDTO>>(filmsWithNameAndDate);
         }
 
         public async Task<List<FilmGetDTO>> GetAllAsync()

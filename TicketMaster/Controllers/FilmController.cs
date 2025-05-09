@@ -88,6 +88,13 @@ namespace TicketMaster.Controllers
             return await _filmService.GetByNameAsync(name);
         }
 
+        [HttpGet("NameAndDate")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<FilmGetDTO>>> GetFilmByNameAndDate(string name, string date, bool onDay)
+        {
+            return await _filmService.GetByNameAndDateAsync(name, date, onDay);
+        }
+
         // PUT: api/Film/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
