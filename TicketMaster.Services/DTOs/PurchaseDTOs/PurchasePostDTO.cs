@@ -6,10 +6,7 @@ namespace TicketMaster.Services.DTOs.PurchaseDTOs;
 public class PurchasePostDTO
 {
     public int? UserId { get; set; }
-
-    [EmailAddress]
     public string? Email { get; set; }
-    [Phone]
     public string? PhoneNumber { get; set; }
     public List<TicketForPurchasePostDTO> Tickets { get; set; }
 }

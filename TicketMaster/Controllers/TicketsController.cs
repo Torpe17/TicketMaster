@@ -97,13 +97,13 @@ namespace TicketMaster.Controllers
             return NoContent();
         }
 
-        [HttpGet("validate")]
+        [HttpPut("{id}/validate")]
         [Authorize(Roles = "Cashier")]
-        public async Task<ActionResult> ValidateTicket(int ticketId)
+        public async Task<ActionResult> ValidateTicket(int id)
         {
             try
             {
-                await ticketService.Validate(ticketId);
+                await ticketService.Validate(id);
                 return Ok("Ticket is valid and has been validated");
             }
             catch(KeyNotFoundException e)

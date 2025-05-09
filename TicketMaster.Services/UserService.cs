@@ -169,6 +169,10 @@ namespace TicketMaster.Services
             {
                 throw new ArgumentException("There is already another User with this email address");
             }
+            if (user.Name != UserUpdateDTO.Username && await _context.Users.AnyAsync(u => u.Name == UserUpdateDTO.Username))
+            {
+                throw new ArgumentException("There is already another User with this username");
+            }
 
             _mapper.Map(UserUpdateDTO, user);
 
@@ -247,7 +251,11 @@ namespace TicketMaster.Services
             }
             if (BCrypt.Net.BCrypt.Verify(UserDTO.Password, user.PasswordHash))
             {
-                throw new Exception("Password can't be the old password");
+                return _mapper.Map<UserDTO>(user);
+            }
+            if (user.BirthDate != UserDTO.BirthDate)
+            {
+                throw new KeyNotFoundException("The given birthdate is incorrect.");
             }
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(UserDTO.Password);
             await _unitOfWork.SaveAsync();

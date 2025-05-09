@@ -12,7 +12,6 @@ namespace TicketMaster.DataContext.Models
         public User? User { get; set; }
         public List<Ticket> Tickets { get; set; } = new List<Ticket>();
         public double TotalPrice => Tickets.Sum(t => t.Price);
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime PurchaseDate { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }

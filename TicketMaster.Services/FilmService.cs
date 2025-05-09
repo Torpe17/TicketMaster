@@ -39,10 +39,9 @@ namespace TicketMaster.Services
             _context = context;
         }
 
-        public async Task<List<ScreeningGetDTO>> GetScreeningByFilmIdAsync(int filmId)
+        public async Task<List<ScreeningGetDTO>> GetScreeningByFilmIdAsync(int filmId)  
         {
-            var film = await _context.Films.Include(x => x.Screenings).ThenInclude(x => x.RoomId).FirstOrDefaultAsync(x => x.Id == filmId);
-            //var film = await _unitOfWork.FilmRepository.GetByIdAsync(filmId, includedCollections: ["Screenings"], includedReferences: ["Room"]);
+            var film = await _context.Films.Include(x => x.Screenings).ThenInclude(x => x.Room).FirstOrDefaultAsync(x => x.Id == filmId);
             if (film == null)
             {
                 throw new KeyNotFoundException($"Film (id: {filmId}) not found");

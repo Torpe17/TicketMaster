@@ -13,6 +13,8 @@ namespace TicketMaster.Services.DTOs.UserDTOs
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+        [Required]
+        public DateOnly BirthDate { get; set; }
 
 
         [Required]
