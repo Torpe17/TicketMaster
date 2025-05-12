@@ -34,6 +34,21 @@ namespace TicketMaster.Controllers
         {
             return await ticketService.GetTicketsAsync();
         }
+        
+        // GET: api/Tickets/screening/5
+        [HttpGet("screening/{screeningId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<TicketGetDTO>>> GetTicketsByScreeningId(int screeningId)
+        {
+            try
+            {
+                return await ticketService.GetTicketsByScreeningIdAsync(screeningId);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
 
         // GET: api/Tickets/5
         [HttpGet("{id}")]
