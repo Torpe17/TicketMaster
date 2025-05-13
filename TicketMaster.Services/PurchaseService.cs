@@ -103,10 +103,28 @@ namespace TicketMaster.Services
                 purchase.UserId = null;
             }
             purchase.PurchaseDate = DateTime.UtcNow;
-            
-            var screening = await _unitOfWork.ScreeningRepository.GetByIdAsync(purchase.Tickets.First().ScreeningId);
+
+            //var screening = await _unitOfWork.ScreeningRepository.GetByIdAsync(purchase.Tickets.First().ScreeningId);
+            var screening = await _appDbContext.Screenings.Include(x => x.Room).Where(x => x.Id == purchase.Tickets.First().ScreeningId).FirstAsync();
             if (screening == null) { throw new KeyNotFoundException("Screening not found"); }
-            
+            if(screening.Room.MaxSeatColumn == null)
+            {
+                if(purchase.Tickets.Count() > (screening.Room.Capacity)) //todo
+                foreach (var item in purchase.Tickets)
+                {
+                    item.SeatRow = null;
+                    item.SeatColumn = null;
+                }
+            }
+            else
+            {
+                foreach (var item in purchase.Tickets)
+                {
+                    if (item.SeatRow <= 0 || item.SeatRow > screening.Room.MaxSeatRow) throw new ArgumentException("Seat row invalid");
+                    if (item.SeatColumn <= 0 || item.SeatColumn > screening.Room.MaxSeatColumn) throw new ArgumentException("Seat column invalid");
+                }
+            }
+
             purchase.Tickets.ForEach(t => t.Price = screening.DefaultTicketPrice);
             
             await _unitOfWork.PurchaseRepository.InsertAsync(purchase);
