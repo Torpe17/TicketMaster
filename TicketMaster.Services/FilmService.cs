@@ -18,6 +18,7 @@ namespace TicketMaster.Services
     {
         Task<List<FilmGetDTO>> GetAllAsync();
         Task<FilmGetDTO> GetByIdAsync(int id);
+        Task<List<FilmGetDTO>> GetTrendingFilms();
         Task<List<ScreeningGetDTO>> GetScreeningByFilmIdAsync(int filmId);
         Task<List<FilmGetDTO>> GetByNameAsync(string name);
         Task<List<FilmGetDTO>> GetByDateAsync(string date);
@@ -47,6 +48,21 @@ namespace TicketMaster.Services
                 throw new KeyNotFoundException($"Film (id: {filmId}) not found");
             }
             return _mapper.Map<List<ScreeningGetDTO>>(film.Screenings);
+        }
+
+        public async Task<List<FilmGetDTO>> GetTrendingFilms()
+        {
+            var films = await _unitOfWork.FilmRepository.GetAsync(includedProperties: ["Screenings"]);
+            var trendingFilms = films.OrderByDescending(f => f.Screenings.Count).Take(5).ToList();
+            var result = _mapper.Map<List<FilmGetDTO>>(trendingFilms);
+            for (int i = 0; i < trendingFilms.Count; i++)
+            {
+                if (trendingFilms[i].Picture != null && trendingFilms[i].Picture.Length > 0)
+                {
+                    result[i].PictureBase64 = Convert.ToBase64String(trendingFilms[i].Picture);
+                }
+            }
+            return result;
         }
 
         public async Task AddFilmAsync(FilmPostDTO film)

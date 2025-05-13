@@ -37,6 +37,13 @@ namespace TicketMaster.Controllers
             return await _filmService.GetAllAsync();
         }
 
+        [HttpGet("trending")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<FilmGetDTO>>> GetTrendingFilms()
+        {
+            return await _filmService.GetTrendingFilms();
+        }
+
         // GET: api/Film/5
         [HttpGet("{id}")]
         [AllowAnonymous]
