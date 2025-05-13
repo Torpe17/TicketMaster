@@ -90,7 +90,15 @@ namespace TicketMaster.Services
                 var user = await _unitOfWork.UserRepository.GetByIdAsync((int)userId, includedCollections: ["Roles"]);
                 if (user == null) throw new KeyNotFoundException("User logged in but can not found by userId");
 
-                if (user.Roles.Any(x => x.Name == "Cashier")) { purchase.UserId = purchaseDto.UserId; }
+                if (user.Roles.Any(x => x.Name == "Cashier")) 
+                {
+                    User buyingUser = await _appDbContext.Users.Where(u => u.Email == purchaseDto.Email).FirstOrDefaultAsync();
+                    if (buyingUser == null)
+                    {
+                        throw new ArgumentException("This user doesn't exists.");
+                    }
+                    purchase.UserId = buyingUser.Id;
+                }
                 else if (user.Roles.Any(x => x.Name == "Customer")) { purchase.UserId = user.Id; }
                 else throw new AuthenticationException("Only Cashier and Customers can purchase");
                 
@@ -109,7 +117,11 @@ namespace TicketMaster.Services
             if (screening == null) { throw new KeyNotFoundException("Screening not found"); }
             if(screening.Room.MaxSeatColumn == null)
             {
-                if(purchase.Tickets.Count() > (screening.Room.Capacity)) //todo
+                var tickets = await _appDbContext.Tickets.Include(t => t.Screening).Where(t => t.ScreeningId == screening.Id).ToListAsync();
+                if (purchase.Tickets.Count() > (screening.Room.Capacity - tickets.Count)) //todo
+                {
+                    throw new ArgumentException($"There isn't enough capacity for {purchase.Tickets.Count} tickets.");
+                }
                 foreach (var item in purchase.Tickets)
                 {
                     item.SeatRow = null;
@@ -122,6 +134,11 @@ namespace TicketMaster.Services
                 {
                     if (item.SeatRow <= 0 || item.SeatRow > screening.Room.MaxSeatRow) throw new ArgumentException("Seat row invalid");
                     if (item.SeatColumn <= 0 || item.SeatColumn > screening.Room.MaxSeatColumn) throw new ArgumentException("Seat column invalid");
+                    var ticket = await _appDbContext.Tickets.Where(t => t.ScreeningId == item.ScreeningId && t.SeatColumn == item.SeatColumn && t.SeatRow == item.SeatRow).FirstOrDefaultAsync();
+                    if(ticket != null)
+                    {
+                        throw new ArgumentException("One of the seats is already assigned.");
+                    }
                 }
             }
 
