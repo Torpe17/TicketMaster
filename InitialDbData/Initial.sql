@@ -145,16 +145,16 @@ INSERT INTO Users (Name, Email, PasswordHash, AddressId, BirthDate) VALUES
 ('Kiss Judit', 'kiss.judit@example.com', '$2a$11$osj1JYqLF9Z5T/hAx1zZ1O8AHPJdeBMTSRKnpkGXzYvYsCxqcRWTa', 10, '1999-10-10');
 
 INSERT INTO Addresses (Country, County, ZipCode, City, Street, Floor, HouseNumber, UserId) VALUES
-('Hungary', 'Budapest', 1011, 'Budapest', 'Kossuth Lajos utca', NULL, 10, 1),
-('Hungary', 'Budapest', 1012, 'Budapest', 'Széchenyi utca', 2, 5, 2),
-('Hungary', 'Budapest', 1013, 'Budapest', 'Andrássy út', NULL, 20, 3),
-('Hungary', 'Budapest', 1014, 'Budapest', 'Bajcsy-Zsilinszky út', 3, 15, 4),
-('Hungary', 'Pest', 2000, 'Szentendre', 'Fő tér', NULL, 3, 5),
-('Hungary', 'Győr-Moson-Sopron', 9021, 'Győr', 'Baross Gábor út', 2, 7, 6),
-('Hungary', 'Bács-Kiskun', 6000, 'Kecskemét', 'Kossuth tér', NULL, 10, 7),
-('Hungary', 'Veszprém', 8200, 'Veszprém', 'Óvári Ferenc utca', 4, 12, 8),
-('Hungary', 'Hajdú-Bihar', 4025, 'Debrecen', 'Piac utca', 5, 9, 9),
-('Austria', 'Vienna', 1010, 'Vienna', 'Stephansplatz', NULL, 5, 10);
+('HU', 'Budapest', 1011, 'Budapest', 'Kossuth Lajos utca', NULL, 10, 1),
+('HU', 'Budapest', 1012, 'Budapest', 'Széchenyi utca', 2, 5, 2),
+('HU', 'Budapest', 1013, 'Budapest', 'Andrássy út', NULL, 20, 3),
+('HU', 'Budapest', 1014, 'Budapest', 'Bajcsy-Zsilinszky út', 3, 15, 4),
+('HU', 'Pest', 2000, 'Szentendre', 'Fő tér', NULL, 3, 5),
+('HU', 'Győr-Moson-Sopron', 9021, 'Győr', 'Baross Gábor út', 2, 7, 6),
+('HU', 'Bács-Kiskun', 6000, 'Kecskemét', 'Kossuth tér', NULL, 10, 7),
+('HU', 'Veszprém', 8200, 'Veszprém', 'Óvári Ferenc utca', 4, 12, 8),
+('HU', 'Hajdú-Bihar', 4025, 'Debrecen', 'Piac utca', 5, 9, 9),
+('AT', 'Vienna', 1010, 'Vienna', 'Stephansplatz', NULL, 5, 10);
 
 INSERT INTO Roles (Name) VALUES
 ('Admin'),
