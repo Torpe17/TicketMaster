@@ -17,6 +17,7 @@ namespace TicketMaster.Services
     public interface ITicketService
     {
         Task<List<TicketGetDTO>> GetTicketsAsync();
+        Task<List<TicketGetDTO>> GetTicketsByScreeningIdAsync(int screeningId);
         Task<TicketGetDTO> GetTicketByIdAsync(int id);
         Task PutTicketAsync(int ticketId, TicketPutDTO dto);
         Task PostTicketAsync(TicketPostDTO dto);
@@ -38,6 +39,11 @@ namespace TicketMaster.Services
         {
             await unitOfWork.TicketRepository.DeleteByIdAsync(id);
             await unitOfWork.SaveAsync();
+        }
+
+        public async Task<List<TicketGetDTO>> GetTicketsByScreeningIdAsync(int screeningId)
+        {
+            return mapper.Map<List<TicketGetDTO>>(await context.Tickets.Where(t => t.ScreeningId == screeningId).ToListAsync());
         }
 
         public async Task<TicketGetDTO> GetTicketByIdAsync(int id)

@@ -70,6 +70,7 @@ public class RoomsController(IRoomService roomService, ILogger<RoomsController> 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [AllowAnonymous]
     public async Task<ActionResult<RoomGetByIdDTO>> GetRoomByRoomId(int roomId)
     {
         try
