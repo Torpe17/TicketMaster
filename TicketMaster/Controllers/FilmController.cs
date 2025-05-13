@@ -127,7 +127,7 @@ namespace TicketMaster.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<FilmPostDTO>> PostFilm(FilmPostDTO film)
+        public async Task<ActionResult<FilmPostDTO>> PostFilm([FromBody] FilmPostDTO film)
         {
             try
             {
